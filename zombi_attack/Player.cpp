@@ -1,49 +1,66 @@
 #include "Player.h"
 
-Player::Player(Image &image, float X, float Y, int W, int H, String Name)
-	:Entity(image, X, Y, W, H, Name)
+Player::Player(Image &image,  Vector2f startPosition, Vector2i spriteObjectSize, String Name)
+:Entity(image, startPosition, spriteObjectSize, Name)
 {
+	position = startPosition;
 	isShoot = false;
 	attackTimer = 0;
 	frequencyAttack = 500;//скорость атаки игрока
-	sprite.setTextureRect(IntRect(0, 0, w, h));
-}
-
-void Player::setStay(){
-
+	sprite.setTextureRect(IntRect(0, 0, spriteSize.x, spriteSize.y));
 }
 
 bool Player::isStay(){//если игрок стоит, то вернем true
-	if (state == stay){ return true; }
+	if (state == stay){ 
+		return true; 
+	}
 	return false;
 }
 
 void Player::rotateSprite(Vector2f pos) {
-	float rotation = (atan2(pos.y - y, pos.x - x)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы
+	float rotation = (atan2(pos.y - position.y, pos.x - position.x)) * 180 / 3.14159265;//получаем угол в радианах и переводим его в градусы
 	if (state == stay) {
-		if ((rotation > -180.0) && (rotation<-135.0)) { sprite.setTextureRect(IntRect(w, h * 4, w, h)); }
-		if ((rotation > -135.0) && (rotation<-105.0)) { sprite.setTextureRect(IntRect(w, 0, w, h)); }
-		if ((rotation > -105.0) && (rotation<-45.0)) { sprite.setTextureRect(IntRect(w, h, w, h)); }
-		if ((rotation > -45.0) && (rotation<-25.0)) { sprite.setTextureRect(IntRect(w, h * 2, w, h)); }
-		if ((rotation < 25.0) && (rotation>-25.0)) { sprite.setTextureRect(IntRect(w, h * 3, w, h)); }
-		if ((rotation < 45.0) && (rotation>25.0)) { sprite.setTextureRect(IntRect(w, h * 7, w, h)); }
-		if ((rotation < 90.0) && (rotation>45.0)) { sprite.setTextureRect(IntRect(w, h * 6, w, h)); }
-		if ((rotation > 90.0) && (rotation<135.0)) { sprite.setTextureRect(IntRect(w, h * 5, w, h)); }
-		if ((rotation > 135.0) && (rotation<180.0)) { sprite.setTextureRect(IntRect(w, h * 4, w, h)); }
+		if ((rotation > -180.0) && (rotation<-135.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 4, spriteSize.x, spriteSize.y));
+		}
+		if ((rotation > -135.0) && (rotation<-105.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, 0, spriteSize.x, spriteSize.y)); 
+		}
+		if ((rotation > -105.0) && (rotation<-45.0)) {
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y, spriteSize.x, spriteSize.y)); 
+		}
+		if ((rotation > -45.0) && (rotation<-25.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 2, spriteSize.x, spriteSize.y)); 
+		}
+		if ((rotation < 25.0) && (rotation>-25.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 3, spriteSize.x, spriteSize.y)); 
+		}
+		if ((rotation < 45.0) && (rotation>25.0)) {
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 7, spriteSize.x, spriteSize.y)); 
+		}
+		if ((rotation < 90.0) && (rotation>45.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 6, spriteSize.x, spriteSize.y));
+		}
+		if ((rotation > 90.0) && (rotation<135.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 5, spriteSize.x, spriteSize.y)); 
+		}
+		if ((rotation > 135.0) && (rotation<180.0)) { 
+			sprite.setTextureRect(IntRect(spriteSize.x, spriteSize.y * 4, spriteSize.x, spriteSize.y)); 
+		}
 	}
 }
 
 void Player::startAnimation(float &time) { //анимация
 	switch (state)//для каждого состояния своя анимация
 	{
-	case down: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h * 6, w, h)); break;
-	case left: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h * 4, w, h)); break;
-	case right: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h * 3, w, h)); break;
-	case left_down: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h * 5, w, h)); break;
-	case right_down: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h * 7, w, h)); break;
-	case up: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h, w, h)); break;
-	case left_up: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), 0, w, h)); break;
-	case right_up: sprite.setTextureRect(IntRect(w * int(getCurrentFrame(time)), h * 2, w, h)); break;
+		case down: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 6, spriteSize.x, spriteSize.y)); break;
+		case left: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 4, spriteSize.x, spriteSize.y)); break;
+		case right: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 3, spriteSize.x, spriteSize.y)); break;
+		case left_down: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 5, spriteSize.x, spriteSize.y)); break;
+		case right_down: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 7, spriteSize.x, spriteSize.y)); break;
+		case up: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y, spriteSize.x, spriteSize.y)); break;
+		case left_up: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), 0, spriteSize.x, spriteSize.y)); break;
+		case right_up: sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 2, spriteSize.x, spriteSize.y)); break;
 	}
 }
 
@@ -124,20 +141,20 @@ void Player::update(float time, Home & home)
 	isShootAlive();// стреляет пока жив
 	switch (state)//меняем направление
 	{
-	case right: dx = speed; dy = 0; break;
-	case left: dx = -speed; dy = 0; break;
-	case down: dx = 0; dy = speed; break;
-	case up: dx = 0; dy = -speed; break;
-	case left_up: dx = -speed / 2; dy = -speed / 2; break;
-	case left_down: dx = -speed / 2; dy = speed / 2; break;
-	case right_up: dx = speed / 2; dy = -speed / 2; break;
-	case right_down: dx = speed / 2; dy = speed / 2; break;
-	case stay:dx = 0; dy = 0; speed = 0; break;
+		case right: acceleration.x = speed; acceleration.y = 0; break;
+		case left: acceleration.x = -speed; acceleration.y = 0; break;
+		case down: acceleration.x = 0; acceleration.y = speed; break;
+		case up: acceleration.x = 0; acceleration.y = -speed; break;
+		case left_up: acceleration.x = -speed / 2; acceleration.y = -speed / 2; break;
+		case left_down: acceleration.x = -speed / 2; acceleration.y = speed / 2; break;
+		case right_up: acceleration.x = speed / 2; acceleration.y = -speed / 2; break;
+		case right_down: acceleration.x = speed / 2; acceleration.y = speed / 2; break;
+		case stay:acceleration.x = 0; acceleration.y = 0; speed = 0; break;
 	}
 
-	x += dx*time;
-	y += dy*time;
+	position.x += acceleration.x*time;
+	position.y += acceleration.y*time;
 
 	speed = 0;
-	sprite.setPosition(x + w / 2, y + h / 2);
+	sprite.setPosition(position.x + spriteSize.x / 2, position.y + spriteSize.y / 2);
 }

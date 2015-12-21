@@ -12,7 +12,7 @@ public:
 	Vector2f m_direction;//направление
 	float distance;//дистанция
 
-	Bullet(Image &image, String Name, float X, float Y, int W, int H, float tX, float tY);//всё так же, только взяли в конце состояние игрока (int dir)
+	Bullet(Image &image, String Name, Vector2f startPosition, Vector2i spriteObjectSize, float tX, float tY);//всё так же, только взяли в конце состояние игрока (int dir)
 	void update(float time, Home &home);
 	
 };

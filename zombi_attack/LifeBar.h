@@ -12,11 +12,15 @@ public:
 	Texture entitiesTexture;
 	Sprite s;
 	Sprite bar2;
-	int max;
+	int maxHomeHealth;
+	int barOffset;
 	RectangleShape bar;//прямоугольник которым будем покрывать нашу картинку
+	Vector2i playerHealthSize;
+	Vector2i playerHealthOffset;
+	Vector2i offsetBarHome;
 	
 	LifeBar();
-	void update(int hH, int pH, float pX, float pY);
+	void update(int homeHealth, int playerHealth, Vector2f PlayerPosition);
 	void draw(RenderWindow &window);
 };
 #endif

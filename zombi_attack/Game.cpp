@@ -1,4 +1,6 @@
+#include "gameMath.h"
 #include "Game.h"
+
 
 void menu(RenderWindow & window){
 	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackground;
@@ -46,18 +48,6 @@ void menu(RenderWindow & window){
 	////////////////////////////////////////////////////
 }
 
-void radiusAim(int attackDistance, Vector2f pos, float playerX, float playerY, Sprite &spriteCursor) {
-	float dX = pos.x - 500;
-	float dY = pos.y - 500;
-
-	if (dX*dX + dY*dY > attackDistance) {
-		float angle = std::atan2(dY, dX);
-		pos.x = playerX + attackDistance * cos(angle);
-		pos.y = playerY + attackDistance * sin(angle);
-	}
-	spriteCursor.setPosition(pos.x + 10, pos.y);
-
-}
 
 void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &playerImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities){
 	float time = clock.getElapsedTime().asMicroseconds();
@@ -76,28 +66,30 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 			if (event.type == Event::MouseButtonPressed)//если нажата клавиша мыши
 				if (event.key.code == Mouse::Left) //а именно лева€, то стрел€ем 
 				{
-
 					if (player.isShoot == true) {
-						player.speed = 0; player.dx = 0; player.dy = 0;
+						player.speed = 0; 
+						player.acceleration.x = 0; 
+						player.acceleration.y = 0;
 						player.isShoot = false;
-						entities.push_back(new Bullet(BulletImage, "Bullet", player.x, player.y, 12, 12, spriteCursor.getPosition().x, spriteCursor.getPosition().y));
+						entities.push_back(new Bullet(BulletImage, "Bullet", player.position, Vector2i(12, 12), spriteCursor.getPosition().x, spriteCursor.getPosition().y));
 					} //если выстрелили, то по€вл€етс€ пул€
 				}
 		}
 	}
 
-
-
 	player.update(time, home);
-	radiusAim(level.attackDistance, pos, player.x, player.y, spriteCursor);//прицел не дальше дистанции
-	lifeBar.update(home.getHealth(), player.health, player.x, player.y);
+	radiusAim(level.attackDistance, pos, player.position, spriteCursor);//прицел не дальше дистанции
+	lifeBar.update(home.getHealth(), player.health, player.position);
 	home.update();
 
 	for (auto& it : entities) {
 		it->update(time, home);
 
 		if (it->name == "ZombieEnemy") {
-			if (it->getRect().intersects(player.getRect()) && (it->health>0)){ player.health -= 1; }// игрок получает дамаг при контакте с зомби
+			if (it->getRect().intersects(player.getRect()) && (it->health>0)){ 
+				player.health -= 1;
+			}// игрок получает дамаг при контакте с зомби
+
 			for (auto& it2 : entities)
 			{
 				if (it2->name == "Bullet") {
@@ -106,11 +98,13 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 						if (level.wave < 11){//после 15 волны пул€ сможет убивать нескольких
 							it2->life = false;
 						}
-						else { it->sprite.setColor(Color::Yellow); }
+						else { 
+							it->sprite.setColor(Color::Yellow); 
+						}
 						it->health -= 5;
 						it->sprite.setColor(Color::Yellow);
 						if (it->health <= 0) {
-							entities.push_back(new Enemy(enemyImage, window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight), 25, 53, "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
+							entities.push_back(new Enemy(enemyImage, Vector2f (window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
 						}
 					}
 				}
@@ -118,20 +112,13 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 		}
 	}
 
-	/*
-	for (auto& it : entities) {
-	if (it->life == false)	{
-	if (it->name == "ZombieEnemy") { level.score++; } //если удалили врага, то прибавл€ем очки игроку
-	it=entities.erase(it);//тут не знаю как удалить элемент из списка
-	}
-	else   it++;
-	}*/
-
 	//удаление эл-тов из списка
 	for (std::list<Entity*>::iterator it = entities.begin(); it != entities.end();)
 	{
 		if ((*it)->life == false)	{
-			if ((*it)->name == "ZombieEnemy") { level.score++; } //если удалили врага, то прибавл€ем очки игроку
+			if ((*it)->name == "ZombieEnemy") { 
+				level.score++; 
+			} //если удалили врага, то прибавл€ем очки игроку
 			it = entities.erase(it);
 		}
 		else   it++;
@@ -143,7 +130,9 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 	window.draw(map.getSprite());//рисуем карту
 	window.draw(home.getSprite());//рисуем дом
 	level.update(window, player, home, time);//обновление уровн€ и рисование статистики
-	for (auto& it : entities) { window.draw(it->sprite); } //рисуем entities объекты (сейчас это пули и враги)
+	for (auto& it : entities) { 
+		window.draw(it->sprite); 
+	} //рисуем entities объекты (сейчас это пули и враги)
 	window.draw(player.sprite);
 	window.draw(spriteCursor);
 	lifeBar.draw(window);
@@ -153,13 +142,17 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 
 bool startGame(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &playerImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities) {//функци€ начинает игру
 
-	menu(window);//вызов меню
+	//menu(window);//вызов меню
 
 	while (window.isOpen())
 	{
 		gameUpdate(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage, playerImage, enemyImage, level, player, map, home, entities);
-		if (Keyboard::isKeyPressed(Keyboard::Tab)) { return true; }//если таб, то перезагружаем игру
-		if (Keyboard::isKeyPressed(Keyboard::Escape)) { return false; }//если эскейп, то выходим из игры
+		if (Keyboard::isKeyPressed(Keyboard::Tab)) { 
+			return true; 
+		}//если таб, то перезагружаем игру
+		if (Keyboard::isKeyPressed(Keyboard::Escape)) { 
+			return false; 
+		}//если эскейп, то выходим из игры
 	}
 	return false;
 }
@@ -190,16 +183,15 @@ bool createGameObject(){
 
 	Level level;
 
-	Player player(playerImage, 150, 150, 55.55, 65.5, "Player1");
+	Player player(playerImage, Vector2f (150, 150), Vector2i(55, 65), "Player1");
 	Map map;
 	Home home;
 
-
 	/////////////////////////////—оздание зомби в зависимости от плотности////////////////////
 	for (int i = 0; i < level.zombieQuantity; i++) {//проходимс€ по элементам этого вектора(а именно по врагам)
-		entities.push_back(new Enemy(enemyImage, window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)*i, 25, 53, "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));//генерим врагов по высоте
+		entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)*i), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));//генерим врагов по высоте
 		for (int j = 0; j < level.zombieQuantity; j++) {
-			entities.push_back(new Enemy(enemyImage, window.getSize().x + rand() % (level.densityZombieWidth)*j, 50 + rand() % (level.densityZombieHeight), 25, 53, "ZombieEnemy", 1 + rand() % level.getZombieHealth(), level.getZombieSpeed()));//по ширине
+			entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth)*j, 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", 1 + rand() % level.getZombieHealth(), level.getZombieSpeed()));//по ширине
 		}
 	}
 	///////////////////////////////////////////////////////////////

@@ -9,11 +9,10 @@
 #include "map.h"
 #include "level.h"
 #include "Player.h"
+
 using namespace sf;
 
 void menu(RenderWindow & window);
-
-void radiusAim(int attackDistance, Vector2f pos, float playerX, float playerY, Sprite &spriteCursor);
 
 void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &playerImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities);
 
