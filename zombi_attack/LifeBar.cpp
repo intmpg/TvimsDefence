@@ -13,32 +13,21 @@ LifeBar::LifeBar(){
 
 	bar.setFillColor(Color(0, 0, 0));//черный прямоугольник накладывается сверху и появляется эффект отсутствия здоровья
 
-	maxHomeHealth = 15000;//макс значение хп дома
-
-	playerHealthSize.x = 20;
-	playerHealthSize.y = 7;
-
-	playerHealthOffset.x = 60;
-	playerHealthOffset.y = 40;
-
-	offsetBarHome.x = 10;
-	offsetBarHome.y = 70;
-
-	barOffset = 4;	
 }
 
 void LifeBar::update(int homeHealth, int playerHealth, Vector2f PlayerPosition)//homeHealth,playerHealth,p.x,p.y
 {
 	if ((homeHealth>0) && (homeHealth < maxHomeHealth)) {
-		bar.setSize(Vector2f(offsetBarHome.x, (maxHomeHealth - homeHealth) * offsetBarHome.y / maxHomeHealth));//если не отрицательно и при этом меньше максимума, то устанавливаем новое значение (новый размер) для черного прямоугольника
+		bar.setSize(Vector2f(offsetBarHomeX, (maxHomeHealth - homeHealth) * offsetBarHomeY / maxHomeHealth));//если не отрицательно и при этом меньше максимума, то устанавливаем новое значение (новый размер) для черного прямоугольника
 	}
 
 	if (playerHealth >= 0) {
-		bar2.setTextureRect(IntRect(0, 0, playerHealthSize.x + playerHealth, playerHealthSize.y));
-	}
-	else { bar2.setTextureRect(IntRect(0, 0, playerHealthSize.x, playerHealthSize.y)); }
+		bar2.setTextureRect(IntRect(0, 0, playerHealthSizeX + playerHealth, playerHealthSizeY));
+	} else { 
+		bar2.setTextureRect(IntRect(0, 0, playerHealthSizeX, playerHealthSizeY));
+		}
 
-	bar2.setPosition(PlayerPosition.x - playerHealthOffset.x, PlayerPosition.y - playerHealthOffset.y);
+	bar2.setPosition(PlayerPosition.x - playerHealthOffsetX, PlayerPosition.y - playerHealthOffsetY);
 }
 
 void LifeBar::draw(RenderWindow &window)
@@ -46,9 +35,8 @@ void LifeBar::draw(RenderWindow &window)
 	Vector2f center = window.getView().getCenter();
 	Vector2f size = window.getView().getSize();
 
-	s.setPosition(center.x - size.x / 2, center.y - size.y / 2 );//позиция на экране
-	bar.setPosition(center.x - size.x / 2 + barOffset, center.y - size.y / 2 + barOffset);
-
+	s.setPosition(center.x - size.x / halfScreen, center.y - size.y / halfScreen);//позиция на экране
+	bar.setPosition(center.x - size.x / halfScreen + barOffset, center.y - size.y / halfScreen + barOffset);
 
 	window.draw(s);//сначала рисуем полоску здоровья
 	window.draw(bar);//поверх неё уже черный прямоугольник, он как бы покрывает её

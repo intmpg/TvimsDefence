@@ -1,6 +1,6 @@
 #include "gameMath.h"
 #include "Game.h"
-
+#include <iostream>
 
 void menu(RenderWindow & window){
 	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackground;
@@ -64,16 +64,16 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 			player.rotateSprite(spriteCursor.getPosition());//поворачиваем спрайт в сторону выстрела
 
 			if (event.type == Event::MouseButtonPressed)//если нажата клавиша мыши
-				if (event.key.code == Mouse::Left) //а именно левая, то стреляем 
-				{
-					if (player.isShoot == true) {
-						player.speed = 0; 
-						player.acceleration.x = 0; 
-						player.acceleration.y = 0;
-						player.isShoot = false;
-						entities.push_back(new Bullet(BulletImage, "Bullet", player.position, Vector2i(12, 12), spriteCursor.getPosition().x, spriteCursor.getPosition().y));
-					} //если выстрелили, то появляется пуля
-				}
+			if (event.key.code == Mouse::Left) //а именно левая, то стреляем 
+			{
+				if (player.isShoot == true) {
+					player.speed = 0;
+					player.acceleration.x = 0;
+					player.acceleration.y = 0;
+					player.isShoot = false;
+					entities.push_back(new Bullet(BulletImage, "Bullet", player.position, Vector2i(12, 12), spriteCursor.getPosition().x, spriteCursor.getPosition().y));
+				} //если выстрелили, то появляется пуля
+			}
 		}
 	}
 
@@ -86,7 +86,12 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 		it->update(time, home);
 
 		if (it->name == "ZombieEnemy") {
-			if (it->getRect().intersects(player.getRect()) && (it->health>0)){ 
+			if (it->life == false){
+				//если враг умер, то прибавляем очки игроку
+				level.score++;
+			}
+
+			if (it->getRect().intersects(player.getRect()) && (it->health>0)){
 				player.health -= 1;
 			}// игрок получает дамаг при контакте с зомби
 
@@ -98,13 +103,13 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 						if (level.wave < 11){//после 15 волны пуля сможет убивать нескольких
 							it2->life = false;
 						}
-						else { 
-							it->sprite.setColor(Color::Yellow); 
+						else {
+							it->sprite.setColor(Color::Yellow);
 						}
 						it->health -= 5;
 						it->sprite.setColor(Color::Yellow);
 						if (it->health <= 0) {
-							entities.push_back(new Enemy(enemyImage, Vector2f (window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
+							entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
 						}
 					}
 				}
@@ -113,16 +118,7 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 	}
 
 	//удаление эл-тов из списка
-	for (std::list<Entity*>::iterator it = entities.begin(); it != entities.end();)
-	{
-		if ((*it)->life == false)	{
-			if ((*it)->name == "ZombieEnemy") { 
-				level.score++; 
-			} //если удалили врага, то прибавляем очки игроку
-			it = entities.erase(it);
-		}
-		else   it++;
-	}
+	eventZombiDestroy(entities, level);
 
 	window.setView(view);
 	window.clear();
@@ -130,8 +126,8 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 	window.draw(map.getSprite());//рисуем карту
 	window.draw(home.getSprite());//рисуем дом
 	level.update(window, player, home, time);//обновление уровня и рисование статистики
-	for (auto& it : entities) { 
-		window.draw(it->sprite); 
+	for (auto& it : entities) {
+		window.draw(it->sprite);
 	} //рисуем entities объекты (сейчас это пули и враги)
 	window.draw(player.sprite);
 	window.draw(spriteCursor);
@@ -147,11 +143,11 @@ bool startGame(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &text
 	while (window.isOpen())
 	{
 		gameUpdate(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage, playerImage, enemyImage, level, player, map, home, entities);
-		if (Keyboard::isKeyPressed(Keyboard::Tab)) { 
-			return true; 
+		if (Keyboard::isKeyPressed(Keyboard::Tab)) {
+			return true;
 		}//если таб, то перезагружаем игру
-		if (Keyboard::isKeyPressed(Keyboard::Escape)) { 
-			return false; 
+		if (Keyboard::isKeyPressed(Keyboard::Escape)) {
+			return false;
 		}//если эскейп, то выходим из игры
 	}
 	return false;
@@ -183,7 +179,7 @@ bool createGameObject(){
 
 	Level level;
 
-	Player player(playerImage, Vector2f (150, 150), Vector2i(55, 65), "Player1");
+	Player player(playerImage, Vector2f(150, 150), Vector2i(55, 65), "Player1");
 	Map map;
 	Home home;
 
@@ -201,4 +197,14 @@ bool createGameObject(){
 
 void gameRunning(){//ф-ция перезагружает игру , если это необходимо
 	if (createGameObject()) { gameRunning(); }////если createGameObject() == true, то вызываем занова ф-цию isGameRunning, которая в свою очередь опять вызывает startGame() 
+}
+
+void eventZombiDestroy(std::list<Entity*> &entities, Level &level){
+
+	auto is_crash = [](Entity *entities) {
+		return !(entities->life);
+	};
+
+	entities.erase(std::remove_if(entities.begin(), entities.end(), is_crash), entities.end());//удаляем все элементы со значением life=false
+
 }

@@ -12,12 +12,16 @@ public:
 	Texture entitiesTexture;
 	Sprite s;
 	Sprite bar2;
-	int maxHomeHealth;
-	int barOffset;
+	const int maxHomeHealth = 15000;
+	const int barOffset=4;
+	const int halfScreen=2;
+	const int playerHealthSizeX = 20;
+	const int playerHealthSizeY = 7;
+	const int playerHealthOffsetX = 60;
+	const int playerHealthOffsetY = 40;
+	const int offsetBarHomeX = 10;
+	const int offsetBarHomeY = 70;
 	RectangleShape bar;//прямоугольник которым будем покрывать нашу картинку
-	Vector2i playerHealthSize;
-	Vector2i playerHealthOffset;
-	Vector2i offsetBarHome;
 	
 	LifeBar();
 	void update(int homeHealth, int playerHealth, Vector2f PlayerPosition);

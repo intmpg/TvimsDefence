@@ -22,4 +22,7 @@ bool createGameObject();
 
 void gameRunning();
 
+void eventZombiDestroy(std::list<Entity*> &entities, Level &level);
+
+
 #endif
