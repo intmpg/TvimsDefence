@@ -49,13 +49,9 @@ void menu(RenderWindow & window){
 }
 
 
-void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &playerImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities){
-	float time = clock.getElapsedTime().asMicroseconds();
-	clock.restart();
-	time = time / 800;
-	Event event;
-	Vector2f pos = window.mapPixelToCoords(Mouse::getPosition(window));//забираем коорд курсора, переводим их в игровые (уходим от коорд окна)
 
+void eventLoop(RenderWindow &window, Player &player, std::list<Entity*> & entities, Sprite &spriteCursor, Image &BulletImage){
+	Event event;
 	while (window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
@@ -63,62 +59,67 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 		if (player.isStay()) {//если игрок стоит, то будем его поворачивать и стрелять
 			player.rotateSprite(spriteCursor.getPosition());//поворачиваем спрайт в сторону выстрела
 
-			if (event.type == Event::MouseButtonPressed)//если нажата клавиша мыши
-			if (event.key.code == Mouse::Left) //а именно левая, то стреляем 
+			if ((event.type == Event::MouseButtonPressed) && (event.key.code == Mouse::Left) && (player.isShoot == true))//если нажата клавиша мыши //а именно левая, то стреляем 
 			{
-				if (player.isShoot == true) {
-					player.speed = 0;
-					player.acceleration.x = 0;
-					player.acceleration.y = 0;
-					player.isShoot = false;
-					entities.push_back(new Bullet(BulletImage, "Bullet", player.position, Vector2i(12, 12), spriteCursor.getPosition().x, spriteCursor.getPosition().y));
-				} //если выстрелили, то появляется пуля
+				player.speed = 0;
+				player.acceleration.x = 0;
+				player.acceleration.y = 0;
+				player.isShoot = false;
+				entities.push_back(new Bullet(BulletImage, "Bullet", player.position, Vector2i(12, 12), spriteCursor.getPosition().x, spriteCursor.getPosition().y)); //если выстрелили, то появляется пуля	
 			}
 		}
 	}
+}
+
+void entitiesInteraction(std::list<Entity*> & entities, float &time, Home &home, Level &level, Player &player, Image &enemyImage, RenderWindow &window){
+	for (auto& it : entities) {
+		it->update(time, home);
+
+		if (it->name != "ZombieEnemy")
+			continue;
+		if (it->life == false) {
+			level.score++;//если враг умер, то прибавляем очки игроку
+		}
+
+		if (it->getRect().intersects(player.getRect()) && (it->health>level.deathQuantityHealth)) {
+			player.health -= level.playerDamage;
+		}// игрок получает дамаг при контакте с зомби
+
+		for (auto& it2 : entities)
+		{
+			if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > level.deathQuantityHealth))))
+				continue;
+			if (level.wave < level.superBulletWave) {//после 11 волны пуля сможет убивать нескольких
+				it2->life = false;
+			}
+			it->health -= level.zombieDamage;
+			it->sprite.setColor(Color::Yellow);
+			if (it->health <= level.deathQuantityHealth) {
+				entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
+			}
+		}
+	}
+	eventZombiDestroy(entities, level);
+}
+
+void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities){
+	float time = clock.getElapsedTime().asMicroseconds();
+	clock.restart();
+	time = time / level.tempGame;
+	
+	Vector2f pos = window.mapPixelToCoords(Mouse::getPosition(window));//забираем коорд курсора, переводим их в игровые (уходим от коорд окна)
+
+	eventLoop(window, player, entities,spriteCursor,BulletImage);//while (window.pollEvent(event))
 
 	player.update(time, home);
 	radiusAim(level.attackDistance, pos, player.position, spriteCursor);//прицел не дальше дистанции
 	lifeBar.update(home.getHealth(), player.health, player.position);
 	home.update();
-
-	for (auto& it : entities) {
-		it->update(time, home);
-
-		if (it->name == "ZombieEnemy") {
-			if (it->life == false){
-				//если враг умер, то прибавляем очки игроку
-				level.score++;
-			}
-
-			if (it->getRect().intersects(player.getRect()) && (it->health>0)){
-				player.health -= 1;
-			}// игрок получает дамаг при контакте с зомби
-
-			for (auto& it2 : entities)
-			{
-				if (it2->name == "Bullet") {
-					if ((it->getRect().intersects(it2->getRect()) && (it->health>0)))
-					{
-						if (level.wave < 11){//после 15 волны пуля сможет убивать нескольких
-							it2->life = false;
-						}
-						else {
-							it->sprite.setColor(Color::Yellow);
-						}
-						it->health -= 5;
-						it->sprite.setColor(Color::Yellow);
-						if (it->health <= 0) {
-							entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
-						}
-					}
-				}
-			}
-		}
-	}
+	
+	entitiesInteraction(entities, time, home, level, player,enemyImage,window);
 
 	//удаление эл-тов из списка
-	eventZombiDestroy(entities, level);
+	
 
 	window.setView(view);
 	window.clear();
@@ -136,13 +137,13 @@ void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &tex
 	window.display();
 }
 
-bool startGame(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &playerImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities) {//функция начинает игру
+bool startGame(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities) {//функция начинает игру
 
 	//menu(window);//вызов меню
 
 	while (window.isOpen())
 	{
-		gameUpdate(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage, playerImage, enemyImage, level, player, map, home, entities);
+		gameUpdate(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage,  enemyImage, level, player, map, home, entities);
 		if (Keyboard::isKeyPressed(Keyboard::Tab)) {
 			return true;
 		}//если таб, то перезагружаем игру
@@ -158,7 +159,7 @@ bool createGameObject(){
 	LifeBar lifeBar;//экземпляр класса полоски здоровья
 	window.setMouseCursorVisible(false); // скрывает курсор
 
-	View view = window.getView(); //фиксированная камера для прицели
+	View view = window.getView(); //фиксированная камера для прицела
 
 	std::list<Entity*>  entities;//создаю список, сюда буду кидать объекты
 	Texture textureCursor;
@@ -192,7 +193,8 @@ bool createGameObject(){
 	}
 	///////////////////////////////////////////////////////////////
 
-	return startGame(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage, playerImage, enemyImage, level, player, map, home, entities);
+	return startGame(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage, enemyImage, level, player, map, home, entities);
+	
 }
 
 void gameRunning(){//ф-ция перезагружает игру , если это необходимо
@@ -206,5 +208,4 @@ void eventZombiDestroy(std::list<Entity*> &entities, Level &level){
 	};
 
 	entities.erase(std::remove_if(entities.begin(), entities.end(), is_crash), entities.end());//удаляем все элементы со значением life=false
-
 }

@@ -15,6 +15,11 @@ public:
 	int score;//кол-во очков
 	int attackDistance;//дистанция атаки
 	int zombieHealth;//здоровье зомби
+	int playerDamage;//урон по игроку
+	int zombieDamage;//урон по зомби
+	int tempGame;//темп игры
+	int superBulletWave;//после какой волны пули будут сильнее
+	int deathQuantityHealth;//количество хп необходимое для смерти
 	bool showBonusText;//показывать или нет текст нового бонуса
 	float zombieSpeed;//скорость зомби
 	float showBonusTimer;//время показа текста о бонусах

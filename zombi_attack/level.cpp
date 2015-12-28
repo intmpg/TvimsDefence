@@ -5,8 +5,13 @@ Level::Level() {
 	densityZombieWidth = 1200;//плотность появления зомби по ширине
 	densityZombieHeight = 490;//по высоте
 	wave = 1;// номер волны
+	playerDamage = 1;
+	zombieDamage = 5;
+	tempGame = 800;
 	score = 0; //количество убитых зомби
 	attackDistance = 70;//дальность стрельбы игрока
+	superBulletWave = 11;//после какой волны пули станут сильнее
+	deathQuantityHealth = 0;
 	zombieHealth = 4;
 	zombieSpeed = -0.01;
 	showBonusTimer = 0;
