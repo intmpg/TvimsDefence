@@ -49,6 +49,33 @@ void menu(RenderWindow & window){
 }
 
 
+struct objectImagesStruct //Объявили новую структуру objectImagesStruct.
+{
+	Image BulletImage;//изображение для пули
+	Image playerImage;//игрока
+	Image enemyImage;//врага
+	Texture textureCursor; 
+	Sprite spriteCursor;
+	
+}; //После описания структуры ставят точку с запятой
+
+struct systemObjectStruct //Объявили новую структуру systemObjectStruct
+{
+	RenderWindow window;//окно
+	View view;
+	Clock clock;
+	float time;
+
+}; 
+
+struct gameObjectStruct //Объявили новую структуру gameObjectStruct
+{
+	LifeBar lifeBar;//экземпляр класса полоски здоровья
+	std::list<Entity*>  entities;//создаю список, сюда буду кидать объекты
+	Level level;
+	Map map;
+	Home home;
+}; 
 
 void eventLoop(RenderWindow &window, Player &player, std::list<Entity*> & entities, Sprite &spriteCursor, Image &BulletImage){
 	Event event;
@@ -71,79 +98,78 @@ void eventLoop(RenderWindow &window, Player &player, std::list<Entity*> & entiti
 	}
 }
 
-void entitiesInteraction(std::list<Entity*> & entities, float &time, Home &home, Level &level, Player &player, Image &enemyImage, RenderWindow &window){
-	for (auto& it : entities) {
-		it->update(time, home);
+void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, Image &enemyImage, systemObjectStruct &systemObject){
+	for (auto& it : gameObjects.entities) {
+		it->update(systemObject.time, gameObjects.home);
 
 		if (it->name != "ZombieEnemy")
 			continue;
 		if (it->life == false) {
-			level.score++;//если враг умер, то прибавляем очки игроку
+			gameObjects.level.score++;//если враг умер, то прибавляем очки игроку
 		}
 
-		if (it->getRect().intersects(player.getRect()) && (it->health>level.deathQuantityHealth)) {
-			player.health -= level.playerDamage;
+		if (it->getRect().intersects(player.getRect()) && (it->health>gameObjects.level.deathQuantityHealth)) {
+			player.health -= gameObjects.level.playerDamage;
 		}// игрок получает дамаг при контакте с зомби
 
-		for (auto& it2 : entities)
+		for (auto& it2 : gameObjects.entities)
 		{
-			if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > level.deathQuantityHealth))))
+			if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > gameObjects.level.deathQuantityHealth))))
 				continue;
-			if (level.wave < level.superBulletWave) {//после 11 волны пуля сможет убивать нескольких
+			if (gameObjects.level.wave < gameObjects.level.superBulletWave) {//после 11 волны пуля сможет убивать нескольких
 				it2->life = false;
 			}
-			it->health -= level.zombieDamage;
+			it->health -= gameObjects.level.zombieDamage;
 			it->sprite.setColor(Color::Yellow);
-			if (it->health <= level.deathQuantityHealth) {
-				entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));
+			if (it->health <= gameObjects.level.deathQuantityHealth) {
+				gameObjects.entities.push_back(new Enemy(enemyImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
 			}
 		}
 	}
-	eventZombiDestroy(entities, level);
+	eventZombiDestroy(gameObjects.entities, gameObjects.level);
 }
 
-void gameUpdate(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities){
-	float time = clock.getElapsedTime().asMicroseconds();
-	clock.restart();
-	time = time / level.tempGame;
+void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, Player &player){
+	float time = systemObjects.clock.getElapsedTime().asMicroseconds();
+	systemObjects.clock.restart();
+	time = time / gameObjects.level.tempGame;
 	
-	Vector2f pos = window.mapPixelToCoords(Mouse::getPosition(window));//забираем коорд курсора, переводим их в игровые (уходим от коорд окна)
+	Vector2f pos = systemObjects.window.mapPixelToCoords(Mouse::getPosition(systemObjects.window));//забираем коорд курсора, переводим их в игровые (уходим от коорд окна)
 
-	eventLoop(window, player, entities,spriteCursor,BulletImage);//while (window.pollEvent(event))
+	eventLoop(systemObjects.window, player, gameObjects.entities, objectImages.spriteCursor, objectImages.BulletImage);//while (window.pollEvent(event))
 
-	player.update(time, home);
-	radiusAim(level.attackDistance, pos, player.position, spriteCursor);//прицел не дальше дистанции
-	lifeBar.update(home.getHealth(), player.health, player.position);
-	home.update();
+	player.update(time, gameObjects.home);
+	radiusAim(gameObjects.level.attackDistance, pos, player.position, objectImages.spriteCursor);//прицел не дальше дистанции
+	gameObjects.lifeBar.update(gameObjects.home.getHealth(), player.health, player.position);
+	gameObjects.home.update();
 	
-	entitiesInteraction(entities, time, home, level, player,enemyImage,window);
+	entitiesInteraction(gameObjects, player, objectImages.enemyImage, systemObjects);
 
 	//удаление эл-тов из списка
-	
 
-	window.setView(view);
-	window.clear();
+	systemObjects.window.setView(systemObjects.view);
+	systemObjects.window.clear();
 
-	window.draw(map.getSprite());//рисуем карту
-	window.draw(home.getSprite());//рисуем дом
-	level.update(window, player, home, time);//обновление уровня и рисование статистики
-	for (auto& it : entities) {
-		window.draw(it->sprite);
+	systemObjects.window.draw(gameObjects.map.getSprite());//рисуем карту
+	systemObjects.window.draw(gameObjects.home.getSprite());//рисуем дом
+	gameObjects.level.update(systemObjects.window, player, gameObjects.home, time);//обновление уровня и рисование статистики
+	for (auto& it : gameObjects.entities) {
+		systemObjects.window.draw(it->sprite);
 	} //рисуем entities объекты (сейчас это пули и враги)
-	window.draw(player.sprite);
-	window.draw(spriteCursor);
-	lifeBar.draw(window);
+	systemObjects.window.draw(player.sprite);
+	systemObjects.window.draw(objectImages.spriteCursor);
+	gameObjects.lifeBar.draw(systemObjects.window);
 
-	window.display();
+	systemObjects.window.display();
 }
 
-bool startGame(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &textureCursor, Sprite &spriteCursor, Clock & clock, Image &BulletImage, Image &enemyImage, Level &level, Player &player, Map &map, Home &home, std::list<Entity*> & entities) {//функция начинает игру
+bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, Player &player) {//функция начинает игру
 
 	//menu(window);//вызов меню
 
-	while (window.isOpen())
+	while (systemObjects.window.isOpen())
 	{
-		gameUpdate(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage,  enemyImage, level, player, map, home, entities);
+		gameUpdate(systemObjects, objectImages, gameObjects, player);
 		if (Keyboard::isKeyPressed(Keyboard::Tab)) {
 			return true;
 		}//если таб, то перезагружаем игру
@@ -155,45 +181,34 @@ bool startGame(RenderWindow &window, LifeBar &lifeBar, View &view, Texture &text
 }
 
 bool createGameObject(){
-	RenderWindow window(sf::VideoMode(1276, 668), "Ataka zombi!");
-	LifeBar lifeBar;//экземпляр класса полоски здоровья
-	window.setMouseCursorVisible(false); // скрывает курсор
 
-	View view = window.getView(); //фиксированная камера для прицела
-
-	std::list<Entity*>  entities;//создаю список, сюда буду кидать объекты
-	Texture textureCursor;
-	textureCursor.loadFromFile("images/cursor.png");
-	Sprite spriteCursor(textureCursor);
-
-	Clock clock;
-
-	Image BulletImage;//изображение для пули
-	BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
-	BulletImage.createMaskFromColor(Color(0, 0, 0));//маска для пули по черному цвету
-	Image playerImage;
-	playerImage.loadFromFile("images/hero.png");
-	playerImage.createMaskFromColor(Color(255, 255, 255));
-
-	Image enemyImage;
-	enemyImage.loadFromFile("images/Monster-zombie.png");
-
-	Level level;
-
-	Player player(playerImage, Vector2f(150, 150), Vector2i(55, 65), "Player1");
-	Map map;
-	Home home;
+	systemObjectStruct systemObjects;
+	systemObjects.window.create(sf::VideoMode(1276, 668), "Ataka zombi!");
+	systemObjects.window.setMouseCursorVisible(false); // скрывает курсор
+	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
+	
+	objectImagesStruct objectImages;
+	objectImages.BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
+	objectImages.BulletImage.createMaskFromColor(Color(0, 0, 0));//маска для пули по черному цвету
+	objectImages.playerImage.loadFromFile("images/hero.png");
+	objectImages.playerImage.createMaskFromColor(Color(255, 255, 255));
+	objectImages.enemyImage.loadFromFile("images/Monster-zombie.png");
+	objectImages.textureCursor.loadFromFile("images/cursor.png");
+	objectImages.spriteCursor.setTexture(objectImages.textureCursor);
+	
+	gameObjectStruct gameObjects;
+	Player player(objectImages.playerImage, Vector2f(150, 150), Vector2i(55, 65), "Player1");
 
 	/////////////////////////////Создание зомби в зависимости от плотности////////////////////
-	for (int i = 0; i < level.zombieQuantity; i++) {//проходимся по элементам этого вектора(а именно по врагам)
-		entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth), 50 + rand() % (level.densityZombieHeight)*i), Vector2i(25, 53), "ZombieEnemy", level.getZombieHealth(), level.getZombieSpeed()));//генерим врагов по высоте
-		for (int j = 0; j < level.zombieQuantity; j++) {
-			entities.push_back(new Enemy(enemyImage, Vector2f(window.getSize().x + rand() % (level.densityZombieWidth)*j, 50 + rand() % (level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", 1 + rand() % level.getZombieHealth(), level.getZombieSpeed()));//по ширине
+	for (int i = 0; i < gameObjects.level.zombieQuantity; i++) {//проходимся по элементам этого вектора(а именно по врагам)
+		gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObjects.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)*i), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));//генерим врагов по высоте
+		for (int j = 0; j < gameObjects.level.zombieQuantity; j++) {
+			gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObjects.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth)*j, 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", 1 + rand() % gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));//по ширине
 		}
 	}
 	///////////////////////////////////////////////////////////////
 
-	return startGame(window, lifeBar, view, textureCursor, spriteCursor, clock, BulletImage, enemyImage, level, player, map, home, entities);
+	return startGame(systemObjects, objectImages, gameObjects, player);
 	
 }
 
