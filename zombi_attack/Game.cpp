@@ -54,6 +54,7 @@ struct objectImagesStruct //Объявили новую структуру objectImagesStruct.
 	Image BulletImage;//изображение для пули
 	Image playerImage;//игрока
 	Image enemyImage;//врага
+	Image enemyBossImage;//сильный враг
 	Texture textureCursor; 
 	Sprite spriteCursor;
 	
@@ -98,11 +99,11 @@ void eventLoop(RenderWindow &window, Player &player, std::list<Entity*> & entiti
 	}
 }
 
-void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, Image &enemyImage, systemObjectStruct &systemObject){
+void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectImagesStruct &objectImages, systemObjectStruct &systemObject){
 	for (auto& it : gameObjects.entities) {
 		it->update(systemObject.time, gameObjects.home);
 
-		if (it->name != "ZombieEnemy")
+		if ((it->name != "ZombieEnemy")&&(it->name != "BearZombieEnemy"))
 			continue;
 		if (it->life == false) {
 			gameObjects.level.score++;//если враг умер, то прибавляем очки игроку
@@ -116,13 +117,16 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, Image &e
 		{
 			if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > gameObjects.level.deathQuantityHealth))))
 				continue;
-			if (gameObjects.level.wave < gameObjects.level.superBulletWave) {//после 11 волны пуля сможет убивать нескольких
+			if ((gameObjects.level.wave > gameObjects.level.superBulletWave) && (it->name == "BearZombieEnemy")) {//после какой волны пуля сможет убивать нескольких простых зомби сразу
 				it2->life = false;
 			}
 			it->health -= gameObjects.level.zombieDamage;
 			it->sprite.setColor(Color::Yellow);
 			if (it->health <= gameObjects.level.deathQuantityHealth) {
-				gameObjects.entities.push_back(new Enemy(enemyImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
+				gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
+			}
+			if ((it->health <= gameObjects.level.deathQuantityHealth) && (gameObjects.level.wave>gameObjects.level.superBulletWave)) {
+				gameObjects.entities.push_back(new Enemy(objectImages.enemyBossImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(64, 66), "BearZombieEnemy", gameObjects.level.bearZombieHealth, gameObjects.level.bearZombieSpeed));
 			}
 		}
 	}
@@ -130,20 +134,22 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, Image &e
 }
 
 void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, Player &player){
-	float time = systemObjects.clock.getElapsedTime().asMicroseconds();
+	systemObjects.time = systemObjects.clock.getElapsedTime().asMicroseconds();
 	systemObjects.clock.restart();
-	time = time / gameObjects.level.tempGame;
+	systemObjects.time = systemObjects.time / gameObjects.level.tempGame;
 	
 	Vector2f pos = systemObjects.window.mapPixelToCoords(Mouse::getPosition(systemObjects.window));//забираем коорд курсора, переводим их в игровые (уходим от коорд окна)
 
 	eventLoop(systemObjects.window, player, gameObjects.entities, objectImages.spriteCursor, objectImages.BulletImage);//while (window.pollEvent(event))
 
-	player.update(time, gameObjects.home);
+	player.update(systemObjects.time, gameObjects.home);
 	radiusAim(gameObjects.level.attackDistance, pos, player.position, objectImages.spriteCursor);//прицел не дальше дистанции
 	gameObjects.lifeBar.update(gameObjects.home.getHealth(), player.health, player.position);
 	gameObjects.home.update();
-	
-	entitiesInteraction(gameObjects, player, objectImages.enemyImage, systemObjects);
+
+	eventZombiDestroy(gameObjects.entities, gameObjects.level);
+
+	entitiesInteraction(gameObjects, player, objectImages, systemObjects);
 
 	//удаление эл-тов из списка
 
@@ -152,7 +158,7 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 
 	systemObjects.window.draw(gameObjects.map.getSprite());//рисуем карту
 	systemObjects.window.draw(gameObjects.home.getSprite());//рисуем дом
-	gameObjects.level.update(systemObjects.window, player, gameObjects.home, time);//обновление уровня и рисование статистики
+	gameObjects.level.update(systemObjects.window, player, gameObjects.home, systemObjects.time);//обновление уровня и рисование статистики
 	for (auto& it : gameObjects.entities) {
 		systemObjects.window.draw(it->sprite);
 	} //рисуем entities объекты (сейчас это пули и враги)
@@ -193,6 +199,7 @@ bool createGameObject(){
 	objectImages.playerImage.loadFromFile("images/hero.png");
 	objectImages.playerImage.createMaskFromColor(Color(255, 255, 255));
 	objectImages.enemyImage.loadFromFile("images/Monster-zombie.png");
+	objectImages.enemyBossImage.loadFromFile("images/zombiebear.png");
 	objectImages.textureCursor.loadFromFile("images/cursor.png");
 	objectImages.spriteCursor.setTexture(objectImages.textureCursor);
 	

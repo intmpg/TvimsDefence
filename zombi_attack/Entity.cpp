@@ -17,16 +17,16 @@ Entity::Entity(Image &image, Vector2f startPosition, Vector2i spriteObjectSize, 
 }
 
 void Entity::checkDeath(){
-	if (name != "ZombieEnemy") {
-		if (health <= 0) {
+	
+	if ((name != "ZombieEnemy") && (name != "BearZombieEnemy") && (health <= 0)) {
 			life = false; 
 			speed = 0; 
 			acceleration.x = 0; 
 			acceleration.y = 0; 
-		}//убиваем и останавливаем
+		//убиваем и останавливаем
 	}
 
-	if (name == "ZombieEnemy") {
+	if ((name == "ZombieEnemy") || (name == "BearZombieEnemy")) {
 		if (health <= 0) { 
 			speed = 0; acceleration.x = 0; acceleration.y = 0; 
 		}//сразу не убиваем из-за анимации смерти
@@ -34,7 +34,7 @@ void Entity::checkDeath(){
 }
 
 float Entity::getCurrentFrame(float time){//получить текущий кадр анимации
-	if (name == "ZombieEnemy") {
+	if ((name == "ZombieEnemy") || (name == "BearZombieEnemy")) {
 		currentFrame += 0.005*time; 
 		if (currentFrame > 9) { 
 			currentFrame = 0; 

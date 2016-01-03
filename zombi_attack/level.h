@@ -15,6 +15,7 @@ public:
 	int score;//кол-во очков
 	int attackDistance;//дистанция атаки
 	int zombieHealth;//здоровье зомби
+	int bearZombieHealth;//медведь зомби
 	int playerDamage;//урон по игроку
 	int zombieDamage;//урон по зомби
 	int tempGame;//темп игры
@@ -22,6 +23,7 @@ public:
 	int deathQuantityHealth;//количество хп необходимое для смерти
 	bool showBonusText;//показывать или нет текст нового бонуса
 	float zombieSpeed;//скорость зомби
+	float bearZombieSpeed;//скорость зомби
 	float showBonusTimer;//время показа текста о бонусах
 	
 	String gameOverString = "Игра окончена. Нажмите ТАБ, чтобы начать заново. Ваш счет : \n";
