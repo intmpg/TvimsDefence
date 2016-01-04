@@ -10,8 +10,8 @@ Level::Level() {
 	tempGame = 800;
 	score = 0; //количество убитых зомби
 	attackDistance = 70;//дальность стрельбы игрока
-	//superBulletWave = 11;//после какой волны пули станут сильнее
-	superBulletWave = 1;//после какой волны пули станут сильнее
+	//superHardMode = 11;//после какой волны пули станут сильнее
+	superHardMode = 1;//после какой волны пули станут сильнее
 	deathQuantityHealth = 0;
 	zombieHealth = 4;
 	bearZombieHealth = 5;
@@ -95,7 +95,7 @@ void Level::startNextWave(RenderWindow &window, float &time) {//след волна
 		showBonusText = true;
 	}
 	showBonusT(window, time, showBonusText);
-
+	
 
 }
 
