@@ -73,9 +73,8 @@ struct systemObjectStruct //Объявили новую структуру systemObjectStruct
 	Clock clock;
 	float time;
 	float bonusTimer;
-	int bonusClockHealth = 10000;//через сколько появятся бонус здоровья
-	int bonusClockTimer = 15000;//через сколько появятся бонус таймера
-	int timeForHide = 6000;//время через которое бонус будет исчезать после появления
+	int bonusClockTimer = 17000;//через сколько появятся бонус 
+	int timeForHide = 7000;//время через которое бонус будет исчезать после появления
 }; 
 
 struct gameObjectStruct //Объявили новую структуру gameObjectStruct
@@ -112,20 +111,21 @@ void createBonus(int &wave, systemObjectStruct &systemObjects, objectImagesStruc
 	int rangeXLeft = 150;
 	int rangeXRight = 900;
 	int rangeYTop = 10;
-	int rangeYBottom = 650;
+	int rangeYBottom = 640;
 	systemObjects.bonusTimer += systemObjects.time;
 
 	if (systemObjects.bonusTimer>systemObjects.bonusClockTimer) {
-		objectImages.bonusHealthSprite.setPosition(rangeXLeft + rand() % rangeXRight, rangeYTop + rand() % rangeYBottom);
-		objectImages.bonusTimeSprite.setPosition(rangeXLeft + rand() % rangeXRight, rangeYTop + rand() % rangeYBottom);
+		if (0 + rand() % 2 == 1){
+			objectImages.bonusTimeSprite.setPosition(rangeXLeft + rand() % rangeXRight, rangeYTop + rand() % rangeYBottom);
+		} else {
+			objectImages.bonusHealthSprite.setPosition(rangeXLeft + rand() % rangeXRight, rangeYTop + rand() % rangeYBottom);
+		}
 		systemObjects.bonusTimer = 0;
 	}
 	if (systemObjects.bonusTimer > systemObjects.timeForHide){//скрыть бонусы через timeForhide 
 		objectImages.bonusHealthSprite.setPosition(objectImages.hideX, objectImages.hideY);
 		objectImages.bonusTimeSprite.setPosition(objectImages.hideX, objectImages.hideY);
 	}
-	
-
 }
 
 void interactionWithBonus(Player &player, objectImagesStruct &objectImages, gameObjectStruct &gameObjects) {
@@ -162,7 +162,9 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectIm
 
 		for (auto& it2 : gameObjects.entities)
 		{
-			if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > gameObjects.level.deathQuantityHealth))))
+			if (!((it2->name == "Bullet") && (it->sprite.getGlobalBounds().intersects(it2->sprite.getGlobalBounds()) && (it->health > gameObjects.level.deathQuantityHealth))))
+
+			//if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > gameObjects.level.deathQuantityHealth))))
 				continue;
 			if ((gameObjects.level.wave > gameObjects.level.superHardMode) && (it->name == "BearZombieEnemy")) {//после какой волны пуля сможет убивать нескольких простых зомби сразу
 				it2->life = false;
