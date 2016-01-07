@@ -8,7 +8,11 @@ class Player: public Entity {
 public:
 	enum { left, right, up, down, left_down, left_up, right_down, right_up,stay } state;
 	int frequencyAttack;
+	int playerMaxHealth;
 	bool isShoot;
+	bool isDrive;
+	bool isShooted;
+	bool isSuperBullet;
 	float attackTimer;
 	Player(Image &image,  Vector2f startPosition, Vector2i spriteObjectSize, String Name);
 

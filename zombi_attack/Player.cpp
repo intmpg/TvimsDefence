@@ -5,6 +5,10 @@ Player::Player(Image &image,  Vector2f startPosition, Vector2i spriteObjectSize,
 {
 	position = startPosition;
 	isShoot = false;
+	isDrive = false;
+	isSuperBullet = false;
+	playerMaxHealth = 90;
+	isShooted = false;
 	attackTimer = 0;
 	frequencyAttack = 500;//скорость атаки игрока
 	sprite.setTextureRect(IntRect(0, 0, spriteSize.x, spriteSize.y));

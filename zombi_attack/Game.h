@@ -1,6 +1,7 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 #include <SFML\Graphics.hpp>
+#include <SFML\Audio.hpp>
 #include "LifeBar.h"
 #include "Entity.h"
 #include "Enemy.h"
@@ -9,6 +10,8 @@
 #include "map.h"
 #include "level.h"
 #include "Player.h"
+#include "Tractor.h"
+#include "AudioManager.h"
 
 using namespace sf;
 

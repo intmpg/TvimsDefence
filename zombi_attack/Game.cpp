@@ -66,6 +66,8 @@ struct objectImagesStruct //Объявили новую структуру objectImagesStruct.
 	
 }; //После описания структуры ставят точку с запятой
 
+
+
 struct systemObjectStruct //Объявили новую структуру systemObjectStruct
 {
 	RenderWindow window;//окно
@@ -75,6 +77,8 @@ struct systemObjectStruct //Объявили новую структуру systemObjectStruct
 	float bonusTimer;
 	int bonusClockTimer = 17000;//через сколько появятся бонус 
 	int timeForHide = 7000;//время через которое бонус будет исчезать после появления
+	
+	AudioManager audioManager;
 }; 
 
 struct gameObjectStruct //Объявили новую структуру gameObjectStruct
@@ -84,20 +88,24 @@ struct gameObjectStruct //Объявили новую структуру gameObjectStruct
 	Level level;
 	Map map;
 	Home home;
+	Tractor tractor;
 }; 
 
-void eventLoop(RenderWindow &window, Player &player, std::list<Entity*> & entities, Sprite &spriteCursor, Image &BulletImage){
+
+
+void eventLoop(systemObjectStruct &systemObjects, Player &player, std::list<Entity*> & entities, Sprite &spriteCursor, Image &BulletImage){
 	Event event;
-	while (window.pollEvent(event))
+	while (systemObjects.window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed)
-			window.close();
+			systemObjects.window.close();
 		if (player.isStay()) {//если игрок стоит, то будем его поворачивать и стрелять
 			player.rotateSprite(spriteCursor.getPosition());//поворачиваем спрайт в сторону выстрела
 
 			if ((event.type == Event::MouseButtonPressed) && (event.key.code == Mouse::Left) && (player.isShoot == true))//если нажата клавиша мыши //а именно левая, то стреляем 
 			{
 				player.speed = 0;
+				player.isShooted = true;
 				player.acceleration.x = 0;
 				player.acceleration.y = 0;
 				player.isShoot = false;
@@ -128,55 +136,62 @@ void createBonus(int &wave, systemObjectStruct &systemObjects, objectImagesStruc
 	}
 }
 
-void interactionWithBonus(Player &player, objectImagesStruct &objectImages, gameObjectStruct &gameObjects) {
+void interactionWithBonus(Player &player, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, AudioManager &audioManager) {
 	int playerHealthBonus = 10;
 	float slowEnemy = -0.005;
 
-	if (FloatRect(player.sprite.getGlobalBounds()).intersects(FloatRect(objectImages.bonusHealthSprite.getGlobalBounds()))) {
+	if ((FloatRect(player.sprite.getGlobalBounds()).intersects(FloatRect(objectImages.bonusHealthSprite.getGlobalBounds())))&&(player.health<player.playerMaxHealth)) {
 		player.health += playerHealthBonus;
+		audioManager.pickupBonus.play(); 
 		objectImages.bonusHealthSprite.setPosition(objectImages.hideX, objectImages.hideY);
 	}
 	if (FloatRect(player.sprite.getGlobalBounds()).intersects(FloatRect(objectImages.bonusTimeSprite.getGlobalBounds()))) {
-		
 		for (auto& it : gameObjects.entities) {
 			if ((it->name != "ZombieEnemy") && (it->name != "BearZombieEnemy"))
 				continue;
 			(it)->acceleration.x = slowEnemy;
 		}
+		audioManager.pickupBonus.play();
 		objectImages.bonusTimeSprite.setPosition(objectImages.hideX, objectImages.hideY);
 	}
 }
 void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectImagesStruct &objectImages, systemObjectStruct &systemObject){
 	for (auto& it : gameObjects.entities) {
 		it->update(systemObject.time, gameObjects.home);
-
+		
 		if ((it->name != "ZombieEnemy")&&(it->name != "BearZombieEnemy"))
 			continue;
+		systemObject.audioManager.zombieDiePlay(gameObjects.entities);
 		if (it->life == false) {
 			gameObjects.level.score++;//если враг умер, то прибавляем очки игроку
+			gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
+			if ((gameObjects.level.wave > gameObjects.level.superHardMode) && (0 + rand() % 2 == 1)) {
+				gameObjects.entities.push_back(new Enemy(objectImages.enemyBossImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(64, 66), "BearZombieEnemy", gameObjects.level.bearZombieHealth, gameObjects.level.bearZombieSpeed));
+			}
 		}
 		
 		if (it->getRect().intersects(player.getRect()) && (it->health>gameObjects.level.deathQuantityHealth)) {
 			player.health -= gameObjects.level.playerDamage;
+			if (!systemObject.audioManager.getPlayerDamage.getStatus()) {
+				systemObject.audioManager.getPlayerDamage.play(); 
+			}
 		}// игрок получает дамаг при контакте с зомби
+
+		
+		if (it->getRect().intersects(gameObjects.tractor.getRect()) && (it->health>gameObjects.level.deathQuantityHealth)) {//давка зомби трактором
+			it->health -= gameObjects.level.zombieDamage;
+		}// зомби получает дамаг при контакте с трактором
 
 		for (auto& it2 : gameObjects.entities)
 		{
 			if (!((it2->name == "Bullet") && (it->sprite.getGlobalBounds().intersects(it2->sprite.getGlobalBounds()) && (it->health > gameObjects.level.deathQuantityHealth))))
-
-			//if (!((it2->name == "Bullet") && (it->getRect().intersects(it2->getRect()) && (it->health > gameObjects.level.deathQuantityHealth))))
 				continue;
 			if ((gameObjects.level.wave > gameObjects.level.superHardMode) && (it->name == "BearZombieEnemy")) {//после какой волны пуля сможет убивать нескольких простых зомби сразу
 				it2->life = false;
+				player.isSuperBullet = true;
 			}
 			it->health -= gameObjects.level.zombieDamage;
 			it->sprite.setColor(Color::Yellow);
-			if (it->health <= gameObjects.level.deathQuantityHealth) {
-				gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
-			}
-			if ((it->health <= gameObjects.level.deathQuantityHealth) && (gameObjects.level.wave>gameObjects.level.superHardMode) && (0 + rand() % 2==1)) {
-				gameObjects.entities.push_back(new Enemy(objectImages.enemyBossImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(64, 66), "BearZombieEnemy", gameObjects.level.bearZombieHealth, gameObjects.level.bearZombieSpeed));
-			}
 		}
 	}
 	eventZombiDestroy(gameObjects.entities, gameObjects.level);
@@ -189,7 +204,7 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 	
 	Vector2f pos = systemObjects.window.mapPixelToCoords(Mouse::getPosition(systemObjects.window));//забираем коорд курсора, переводим их в игровые (уходим от коорд окна)
 
-	eventLoop(systemObjects.window, player, gameObjects.entities, objectImages.spriteCursor, objectImages.BulletImage);//while (window.pollEvent(event))
+	eventLoop(systemObjects, player, gameObjects.entities, objectImages.spriteCursor, objectImages.BulletImage);//while (window.pollEvent(event))
 
 	player.update(systemObjects.time, gameObjects.home);
 	radiusAim(gameObjects.level.attackDistance, pos, player.position, objectImages.spriteCursor);//прицел не дальше дистанции
@@ -197,15 +212,18 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 	gameObjects.home.update();
 	createBonus(gameObjects.level.wave, systemObjects, objectImages);//bonus create
 
-	interactionWithBonus(player, objectImages, gameObjects);//взаимодействие с бонусами
+	interactionWithBonus(player, objectImages, gameObjects, systemObjects.audioManager);//взаимодействие с бонусами
 	eventZombiDestroy(gameObjects.entities, gameObjects.level);
 
 	entitiesInteraction(gameObjects, player, objectImages, systemObjects);
-
+	
+	gameObjects.tractor.update(systemObjects.time, player,gameObjects.home);//tractor update
+	systemObjects.audioManager.update(player);
 	
 	
 	systemObjects.window.setView(systemObjects.view);
 	systemObjects.window.clear();
+	
 	systemObjects.window.draw(gameObjects.map.getSprite());//рисуем карту
 	systemObjects.window.draw(gameObjects.home.getSprite());//рисуем дом
 	gameObjects.level.update(systemObjects.window, player, gameObjects.home, systemObjects.time);//обновление уровня и рисование статистики
@@ -214,6 +232,7 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 	} //рисуем entities объекты (сейчас это пули и враги)
 	systemObjects.window.draw(player.sprite);
 	systemObjects.window.draw(objectImages.spriteCursor);
+	systemObjects.window.draw(gameObjects.tractor.sprite); //рисуем трактор
 	systemObjects.window.draw(objectImages.bonusHealthSprite);
 	systemObjects.window.draw(objectImages.bonusTimeSprite);
 	gameObjects.lifeBar.draw(systemObjects.window);
@@ -245,6 +264,9 @@ bool createGameObject(){
 	systemObjects.window.setMouseCursorVisible(false); // скрывает курсор
 	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
 	
+	
+	
+
 	objectImagesStruct objectImages;
 	objectImages.hideX = 0;
 	objectImages.hideY = 2200;

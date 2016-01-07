@@ -1,7 +1,7 @@
 #include "level.h"
 
 Level::Level() {
-	zombieQuantity = 3;//плотность создания зомби
+	zombieQuantity = 2;//плотность создания зомби
 	densityZombieWidth = 1200;//плотность появления зомби по ширине
 	densityZombieHeight = 490;//по высоте
 	wave = 1;// номер волны
@@ -10,12 +10,11 @@ Level::Level() {
 	tempGame = 800;
 	score = 0; //количество убитых зомби
 	attackDistance = 70;//дальность стрельбы игрока
-	//superHardMode = 11;//после какой волны пули станут сильнее
-	superHardMode = 1;//после какой волны пули станут сильнее
+	superHardMode = 11;//после какой волны пули станут сильнее
 	deathQuantityHealth = 0;
 	zombieHealth = 4;
 	bearZombieHealth = 5;
-	zombieSpeed = -0.08;
+	zombieSpeed = -0.03;
 	bearZombieSpeed = -0.05;
 	showBonusTimer = 0;
 	showBonusText = false;

@@ -23,5 +23,6 @@ public:
 	FloatRect getRect();//получить область прямоугольника спрайта
 	void checkCollisionWithHome(Home &home);//столкновение с домом
 	virtual void update(float time, Home &home) = 0;
+	virtual ~Entity() {};
 };
 #endif

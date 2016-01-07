@@ -4,18 +4,10 @@
 Enemy::Enemy(Image &image,  Vector2f startPosition, Vector2i spriteObjectSize, String Name, int Health, float Speed)
 :Entity(image, startPosition, spriteObjectSize, Name)
 {
-	if (name == "ZombieEnemy") {
 		sprite.setTextureRect(IntRect(0, spriteSize.y, spriteSize.x, spriteSize.y));//тайл в тайлсете
 		acceleration.x = Speed;//даем скорость.этот объект всегда двигается
 		health = Health;//здоровье
 		deathAnimationTimer = 0;//таймер показа анимации смерти
-	}
-	if (name == "BearZombieEnemy") {
-		sprite.setTextureRect(IntRect(0, spriteSize.y, spriteSize.x, spriteSize.y));//тайл в тайлсете
-		acceleration.x = Speed;//даем скорость.этот объект всегда двигается
-		health = Health;//здоровье
-		deathAnimationTimer = 0;//таймер показа анимации смерти
-	}
 }
 
 void Enemy::startAnimation(float &time){//анимация
