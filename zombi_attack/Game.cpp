@@ -64,7 +64,7 @@ struct objectImagesStruct //Объявили новую структуру objectImagesStruct.
 	int hideX;
 	int hideY;
 	
-}; //После описания структуры ставят точку с запятой
+}; 
 
 
 

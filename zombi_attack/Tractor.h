@@ -25,9 +25,7 @@ public:
 	float speed;
 	int startTime;
 	int moveTime;
-	
-
-	
+	enum { left, right, up, down } state;
 	
 	Tractor();
 	~Tractor();
@@ -35,6 +33,7 @@ public:
 	
 	void update(float &time, Player &player, Home &home);
 	void interactionWithPlayer(float &time, Player &player);
+	void setSpriteRect(Player &player);
 	void control(float &time, Player &player);
 	void startMove();
 	void rotateInHome();

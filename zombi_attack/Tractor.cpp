@@ -7,12 +7,12 @@ Tractor::Tractor() {
 	position = startPosition;
 	
 	spriteSizeHorizontal = (Vector2i(127, 80));
-	spriteSizeVertical = (Vector2i(64, 123));
+	spriteSizeVertical = (Vector2i(59, 124));
 
 	spriteOffsetRight = (Vector2i(136, 23));
 	spriteOffsetLeft = (Vector2i(132, 157));
-	spriteOffsetUp = (Vector2i(36, 9));
-	spriteOffsetDown = (Vector2i(38, 133));
+	spriteOffsetUp = (Vector2i(36, 8));
+	spriteOffsetDown = (Vector2i(38, 131));
 
 	acceleration = (Vector2f(0, 0));
 	tractorImage.loadFromFile("images/tractor.png");
@@ -24,8 +24,9 @@ Tractor::Tractor() {
 	moveTimer = 0;
 	startTimer = 0;
 	speed = 0.06;
-	startTime = 27000;//через какое время выедет трактор
-	moveTime = 35000;//время, которое трактор должен ездить прежде чем вернется на базу
+	startTime = 3000;//через какое время выедет трактор
+	moveTime = 25000;//время, которое трактор должен ездить прежде чем вернется на базу
+	state = right;
 }
 
 Tractor::~Tractor(){}
@@ -41,24 +42,29 @@ void Tractor::control(float &time, Player &player) {
 	acceleration = (Vector2f(0, 0));
 	if (player.acceleration.x < 0) { //left
 		acceleration = (Vector2f(-speed, 0));
-		sprite.setTextureRect(IntRect(spriteOffsetLeft.x, spriteOffsetLeft.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y));
+		state = left;
 	}
 	if (player.acceleration.x > 0) {//right
 		acceleration = (Vector2f(speed, 0));
-		sprite.setTextureRect(IntRect(spriteOffsetRight.x, spriteOffsetRight.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y));
+		state = right;
 	}
 	if (player.acceleration.y < 0) {//up
 		acceleration = (Vector2f(0, -speed));
-		sprite.setTextureRect(IntRect(spriteOffsetUp.x, spriteOffsetUp.y, spriteSizeVertical.x, spriteSizeVertical.y));
+		state = up;
 	}
 	if (player.acceleration.y > 0) {//down
 		acceleration = (Vector2f(0, speed));
-		sprite.setTextureRect(IntRect(spriteOffsetDown.x, spriteOffsetDown.y, spriteSizeVertical.x, spriteSizeVertical.y));
+		state = down;
 	}
 }
 
 FloatRect Tractor::getRect() {//получить область прямоугольника спрайта
-	return FloatRect(position.x, position.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y);
+	if ((state == right) || (state == left)){
+		return FloatRect(position.x, position.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y);
+	}
+	if ((state == up) || (state == down)){
+		return FloatRect(position.x, position.y, spriteSizeVertical.x, spriteSizeVertical.y);
+	}
 }
 
 void Tractor::interactionWithPlayer(float &time, Player &player) {
@@ -74,15 +80,27 @@ void Tractor::interactionWithPlayer(float &time, Player &player) {
 
 void Tractor::startMove() {
 	acceleration.x = speed;
+	acceleration.y = 0;
 	isMove = true;
 }
 
+void Tractor::setSpriteRect(Player &player) {
+	switch (state)//меняем направление
+	{
+		case right:sprite.setTextureRect(IntRect(spriteOffsetRight.x, spriteOffsetRight.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y)); break;
+		case left:sprite.setTextureRect(IntRect(spriteOffsetLeft.x, spriteOffsetLeft.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y)); break;
+		case down:sprite.setTextureRect(IntRect(spriteOffsetDown.x, spriteOffsetDown.y, spriteSizeVertical.x, spriteSizeVertical.y)); break;
+		case up:sprite.setTextureRect(IntRect(spriteOffsetUp.x, spriteOffsetUp.y, spriteSizeVertical.x, spriteSizeVertical.y));	break;
+	}
+}
+
 void Tractor::rotateInHome() {
-	sprite.setTextureRect(IntRect(spriteOffsetRight.x, spriteOffsetRight.y, spriteSizeHorizontal.x, spriteSizeHorizontal.y));
+	state = right;
 }
 
 void Tractor::update(float &time,Player &player, Home &home) {
 	startTimer += time;
+	setSpriteRect(player);
 	if (startTimer > startTime) {
 		
 		interactionWithPlayer(time, player);
@@ -92,12 +110,13 @@ void Tractor::update(float &time,Player &player, Home &home) {
 		checkCollisionWithHome(home, player);
 		moveTimer += time;
 		if (moveTimer > moveTime) {
-			
 			rotateInHome();
 			isMove = false;
 			position = startPosition;
 			moveTimer = 0;
 			startTimer = 0;
+			acceleration.x = 0;
+			acceleration.y = 0;
 		}
 	}
 	sprite.setPosition(position.x + spriteSizeHorizontal.x / 2, position.y + spriteSizeHorizontal.y / 2);

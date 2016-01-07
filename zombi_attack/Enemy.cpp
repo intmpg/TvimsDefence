@@ -21,7 +21,7 @@ void Enemy::startAnimation(float &time){//анимация
 			sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y, spriteSize.x, spriteSize.y + 1));//анимация смерти
 		}
 		if (deathAnimationTimer > 500) {
-				life = false; deathAnimationTimer = 0;
+			life = false; deathAnimationTimer = 0;
 		}//показываем анимацию и убиваем врага
 	}
 }
