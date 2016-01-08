@@ -12,6 +12,9 @@ void radiusAim(int attackDistance, Vector2f aimPosition, Vector2f playerPosition
 	Vector2f dist = aimPosition;
 	int offsetBulletX = 10;
 
+	dist.x = aimPosition.x - playerPosition.x;
+	dist.y = aimPosition.y - playerPosition.y;
+
 	if (lengthSqr(dist) > attackDistance) {
 		float angle = std::atan2(dist.y, dist.x);
 		aimPosition.x = playerPosition.x + attackDistance * cos(angle);

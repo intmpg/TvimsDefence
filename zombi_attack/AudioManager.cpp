@@ -52,7 +52,7 @@ void AudioManager::update(Player &player) {
 		playerShoot.play();
 		player.isShooted = false;
 	}
-	if ((player.isStay() == false) && (!playerStep.getStatus()) && (!player.isDrive)) {
+	if ((player.isStay() == false) && (!playerStep.getStatus()) && (!player.isDrive) && (player.life)) {
 		playerStep.play(); 
 	}
 	
