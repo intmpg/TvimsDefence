@@ -64,7 +64,7 @@ struct objectImagesStruct //Объявили новую структуру objectImagesStruct.
 	int hideX;
 	int hideY;
 	
-}; 
+}; //После описания структуры ставят точку с запятой
 
 
 
@@ -172,7 +172,7 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectIm
 		
 		if (it->getRect().intersects(player.getRect()) && (it->health>gameObjects.level.deathQuantityHealth)) {
 			player.health -= gameObjects.level.playerDamage;
-			if (!systemObject.audioManager.getPlayerDamage.getStatus()) {
+			if (!systemObject.audioManager.getPlayerDamage.getStatus() && (player.life)) {
 				systemObject.audioManager.getPlayerDamage.play(); 
 			}
 		}// игрок получает дамаг при контакте с зомби
@@ -230,8 +230,10 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 	for (auto& it : gameObjects.entities) {
 		systemObjects.window.draw(it->sprite);
 	} //рисуем entities объекты (сейчас это пули и враги)
-	systemObjects.window.draw(player.sprite);
-	systemObjects.window.draw(objectImages.spriteCursor);
+	if (!player.isDrive) {
+		systemObjects.window.draw(player.sprite);
+		systemObjects.window.draw(objectImages.spriteCursor);
+	}
 	systemObjects.window.draw(gameObjects.tractor.sprite); //рисуем трактор
 	systemObjects.window.draw(objectImages.bonusHealthSprite);
 	systemObjects.window.draw(objectImages.bonusTimeSprite);

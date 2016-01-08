@@ -39,7 +39,7 @@ void AudioManager::zombieDiePlay(std::list<Entity*> &entities){
 	}
 }
 void AudioManager::update(Player &player) {
-	if (!gameTheme.getStatus() && (player.life)) {
+	if (!gameTheme.getStatus()&&(player.life)) { 
 		gameTheme.play();
 	}
 	if ((!player.life) && (!playerDeath.getStatus()) && (!isGameOver)) {
@@ -60,9 +60,4 @@ void AudioManager::update(Player &player) {
 		gunUpgraded.play();
 		isGunUpgraded = true;
 	}
-
-	
-	
-
-
 }

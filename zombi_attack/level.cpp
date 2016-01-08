@@ -10,7 +10,7 @@ Level::Level() {
 	tempGame = 800;
 	score = 0; //количество убитых зомби
 	attackDistance = 70;//дальность стрельбы игрока
-	superHardMode = 11;//после какой волны пули станут сильнее
+	superHardMode = 2;//после какой волны пули станут сильнее
 	deathQuantityHealth = 0;
 	zombieHealth = 4;
 	bearZombieHealth = 5;

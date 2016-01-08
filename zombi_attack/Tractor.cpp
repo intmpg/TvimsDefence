@@ -68,13 +68,9 @@ FloatRect Tractor::getRect() {//получить область прямоугольника спрайта
 }
 
 void Tractor::interactionWithPlayer(float &time, Player &player) {
-	
 	if ((player.getRect().intersects(getRect())&&(isMove))) {
 		player.isDrive = true;
 		control(time, player);
-	}
-	else {
-		player.isDrive = false;
 	}
 }
 
@@ -117,6 +113,7 @@ void Tractor::update(float &time,Player &player, Home &home) {
 			startTimer = 0;
 			acceleration.x = 0;
 			acceleration.y = 0;
+			player.isDrive = false;
 		}
 	}
 	sprite.setPosition(position.x + spriteSizeHorizontal.x / 2, position.y + spriteSizeHorizontal.y / 2);
