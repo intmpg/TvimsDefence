@@ -7,10 +7,10 @@ Player::Player(Image &image,  Vector2f startPosition, Vector2i spriteObjectSize,
 	isShoot = false;
 	isDrive = false;
 	isSuperBullet = false;
-	playerMaxHealth = 90;
+	playerMaxHealth = 100;
 	isShooted = false;
 	attackTimer = 0;
-	frequencyAttack = 500;//скорость атаки игрока
+	frequencyAttack = 0;//скорость атаки игрока
 	sprite.setTextureRect(IntRect(0, 0, spriteSize.x, spriteSize.y));
 }
 
@@ -95,42 +95,43 @@ void Player::control(float &time) {
 
 
 		if ((Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = left;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = right;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = up;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = down;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) && (Keyboard::isKeyPressed(Keyboard::A)) && (state != left))) {
 
+			speed = 0.15;
 			state = left_up;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) && (Keyboard::isKeyPressed(Keyboard::D)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = right_up;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::A) && (Keyboard::isKeyPressed(Keyboard::S)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = left_down;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::D) && (Keyboard::isKeyPressed(Keyboard::S)))) {
-			speed = 0.1;
+			speed = 0.15;
 			state = right_down;
 		}
 	}

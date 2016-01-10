@@ -75,8 +75,8 @@ struct systemObjectStruct //Объявили новую структуру systemObjectStruct
 	Clock clock;
 	float time;
 	float bonusTimer;
-	int bonusClockTimer = 17000;//через сколько появятся бонус 
-	int timeForHide = 7000;//время через которое бонус будет исчезать после появления
+	int bonusClockTimer = 7000;//через сколько появятся бонус 
+	int timeForHide = 17000;//время через которое бонус будет исчезать после появления
 	
 	AudioManager audioManager;
 }; 
@@ -137,7 +137,7 @@ void createBonus(int &wave, systemObjectStruct &systemObjects, objectImagesStruc
 }
 
 void interactionWithBonus(Player &player, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, AudioManager &audioManager) {
-	int playerHealthBonus = 10;
+	int playerHealthBonus = 30;
 	float slowEnemy = -0.005;
 
 	if ((FloatRect(player.sprite.getGlobalBounds()).intersects(FloatRect(objectImages.bonusHealthSprite.getGlobalBounds())))&&(player.health<player.playerMaxHealth)) {
@@ -170,7 +170,7 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectIm
 			}
 		}
 		
-		if (it->getRect().intersects(player.getRect()) && (it->health>gameObjects.level.deathQuantityHealth)) {
+		if (it->getRect().intersects(player.getRect()) && (it->health>gameObjects.level.deathQuantityHealth) && (!player.isDrive)) {
 			player.health -= gameObjects.level.playerDamage;
 			if (!systemObject.audioManager.getPlayerDamage.getStatus() && (player.life)) {
 				systemObject.audioManager.getPlayerDamage.play(); 
@@ -188,7 +188,8 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectIm
 				continue;
 			if ((gameObjects.level.wave > gameObjects.level.superHardMode) && (it->name == "BearZombieEnemy")) {//после какой волны пуля сможет убивать нескольких простых зомби сразу
 				it2->life = false;
-				player.isSuperBullet = true;
+			} else {
+					player.isSuperBullet = true;
 			}
 			it->health -= gameObjects.level.zombieDamage;
 			it->sprite.setColor(Color::Yellow);
@@ -262,7 +263,7 @@ bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImag
 bool createGameObject(){
 
 	systemObjectStruct systemObjects;
-	systemObjects.window.create(sf::VideoMode(1276, 668), "Ataka zombi!", sf::Style::Fullscreen);
+	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!", sf::Style::Fullscreen);
 	systemObjects.window.setMouseCursorVisible(false); // скрывает курсор
 	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
 	

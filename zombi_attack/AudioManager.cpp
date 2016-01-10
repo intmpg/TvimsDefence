@@ -30,6 +30,7 @@ AudioManager::AudioManager() {
 	pickupBonus.setBuffer(bufferPickupBonus);
 
 	gameTheme.openFromFile("sounds/FightMusic.wav"); //main music;
+
 }
 
 void AudioManager::zombieDiePlay(std::list<Entity*> &entities){

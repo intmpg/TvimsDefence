@@ -6,16 +6,16 @@ Level::Level() {
 	densityZombieHeight = 490;//по высоте
 	wave = 1;// номер волны
 	playerDamage = 1;
-	zombieDamage = 5;
+	zombieDamage = 3;
 	tempGame = 800;
 	score = 0; //количество убитых зомби
 	attackDistance = 70;//дальность стрельбы игрока
 	superHardMode = 2;//после какой волны пули станут сильнее
 	deathQuantityHealth = 0;
-	zombieHealth = 4;
+	zombieHealth = 1;
 	bearZombieHealth = 5;
-	zombieSpeed = -0.03;
-	bearZombieSpeed = -0.05;
+	zombieSpeed = -0.04;
+	bearZombieSpeed = -0.03;
 	showBonusTimer = 0;
 	showBonusText = false;
 }
@@ -90,7 +90,7 @@ void Level::showBonusT(RenderWindow &window, float &time, bool &isShow){
 void Level::startNextWave(RenderWindow &window, float &time) {//след волна
 
 	if (score > wave * 3) {
-		wave++; zombieSpeed -= 0.004; zombieHealth += 3; bearZombieHealth += 2; attackDistance += 5;
+		wave++; zombieSpeed -= 0.001; zombieHealth += 0.05; bearZombieHealth += 1; attackDistance += 3;
 		showBonusText = true;
 	}
 	showBonusT(window, time, showBonusText);
