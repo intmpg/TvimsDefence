@@ -27,7 +27,8 @@ public:
 	Sound pickupBonus;
 	Music gameOver;
 	Music gameTheme;
-	
+	Music menuMusic;
+
 	AudioManager();
 
 	void zombieDiePlay(std::list<Entity*> &entities);

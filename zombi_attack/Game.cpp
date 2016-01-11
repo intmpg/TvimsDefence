@@ -3,6 +3,7 @@
 #include <iostream>
 
 void menu(RenderWindow & window){
+	Music music;
 	Texture menuTexture1, menuTexture2, menuTexture3, aboutTexture, menuBackground;
 	menuTexture1.loadFromFile("images/111.png");
 	menuTexture2.loadFromFile("images/222.png");
@@ -13,9 +14,12 @@ void menu(RenderWindow & window){
 	bool isMenu = 1;
 	int menuNum = 0;
 	menu1.setPosition(100, 30);
-	menu2.setPosition(500, 30);
-	menu3.setPosition(900, 30);
+	menu2.setPosition(60, 100);
+	menu3.setPosition(100, 150);
 	menuBg.setPosition(0, 0);
+	//audioManager.menuMusic.play();
+	music.openFromFile("sounds/MenuMusic.wav");
+	music.play();
 
 	//////////////////////////////МЕНЮ///////////////////
 	while (isMenu)
@@ -27,8 +31,8 @@ void menu(RenderWindow & window){
 		window.clear(Color(129, 181, 221));
 
 		if (IntRect(100, 30, 300, 50).contains(Mouse::getPosition(window))) { menu1.setColor(Color::Red); menuNum = 1; }
-		if (IntRect(500, 30, 300, 50).contains(Mouse::getPosition(window))) { menu2.setColor(Color::Red); menuNum = 2; }
-		if (IntRect(900, 30, 300, 50).contains(Mouse::getPosition(window))) { menu3.setColor(Color::Blue); menuNum = 3; }
+		if (IntRect(60, 100, 300, 50).contains(Mouse::getPosition(window))) { menu2.setColor(Color::Red); menuNum = 2; }
+		if (IntRect(100, 170, 300, 50).contains(Mouse::getPosition(window))) { menu3.setColor(Color::Blue); menuNum = 3; }
 
 		if (Mouse::isButtonPressed(Mouse::Left))
 		{
@@ -124,26 +128,26 @@ void createBonus(int &wave, systemObjectStruct &systemObjects, objectImagesStruc
 
 	if (systemObjects.bonusTimer>systemObjects.bonusClockTimer) {
 		if (0 + rand() % 2 == 1){
-			objectImages.bonusTimeSprite.setPosition(rangeXLeft + rand() % rangeXRight, rangeYTop + rand() % rangeYBottom);
+			objectImages.bonusTimeSprite.setPosition(float(rangeXLeft + rand() % rangeXRight), float(rangeYTop + rand() % rangeYBottom));
 		} else {
-			objectImages.bonusHealthSprite.setPosition(rangeXLeft + rand() % rangeXRight, rangeYTop + rand() % rangeYBottom);
+			objectImages.bonusHealthSprite.setPosition(float(rangeXLeft + rand() % rangeXRight), float(rangeYTop + rand() % rangeYBottom));
 		}
 		systemObjects.bonusTimer = 0;
 	}
 	if (systemObjects.bonusTimer > systemObjects.timeForHide){//скрыть бонусы через timeForhide 
-		objectImages.bonusHealthSprite.setPosition(objectImages.hideX, objectImages.hideY);
-		objectImages.bonusTimeSprite.setPosition(objectImages.hideX, objectImages.hideY);
+		objectImages.bonusHealthSprite.setPosition(float(objectImages.hideX), float(objectImages.hideY));
+		objectImages.bonusTimeSprite.setPosition(float(objectImages.hideX), float(objectImages.hideY));
 	}
 }
 
 void interactionWithBonus(Player &player, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, AudioManager &audioManager) {
 	int playerHealthBonus = 30;
-	float slowEnemy = -0.005;
+	float slowEnemy = -0.005f;
 
 	if ((FloatRect(player.sprite.getGlobalBounds()).intersects(FloatRect(objectImages.bonusHealthSprite.getGlobalBounds())))&&(player.health<player.playerMaxHealth)) {
 		player.health += playerHealthBonus;
 		audioManager.pickupBonus.play(); 
-		objectImages.bonusHealthSprite.setPosition(objectImages.hideX, objectImages.hideY);
+		objectImages.bonusHealthSprite.setPosition(float(objectImages.hideX), float(objectImages.hideY));
 	}
 	if (FloatRect(player.sprite.getGlobalBounds()).intersects(FloatRect(objectImages.bonusTimeSprite.getGlobalBounds()))) {
 		for (auto& it : gameObjects.entities) {
@@ -152,7 +156,7 @@ void interactionWithBonus(Player &player, objectImagesStruct &objectImages, game
 			(it)->acceleration.x = slowEnemy;
 		}
 		audioManager.pickupBonus.play();
-		objectImages.bonusTimeSprite.setPosition(objectImages.hideX, objectImages.hideY);
+		objectImages.bonusTimeSprite.setPosition(float(objectImages.hideX), float(objectImages.hideY));
 	}
 }
 void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectImagesStruct &objectImages, systemObjectStruct &systemObject){
@@ -164,9 +168,9 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectIm
 		systemObject.audioManager.zombieDiePlay(gameObjects.entities);
 		if (it->life == false) {
 			gameObjects.level.score++;//если враг умер, то прибавляем очки игроку
-			gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
+			gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(float(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth)), float(50 + rand() % (gameObjects.level.densityZombieHeight))), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));
 			if ((gameObjects.level.wave > gameObjects.level.superHardMode) && (0 + rand() % 2 == 1)) {
-				gameObjects.entities.push_back(new Enemy(objectImages.enemyBossImage, Vector2f(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(64, 66), "BearZombieEnemy", gameObjects.level.bearZombieHealth, gameObjects.level.bearZombieSpeed));
+				gameObjects.entities.push_back(new Enemy(objectImages.enemyBossImage, Vector2f(float(systemObject.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth)), float(50 + rand() % (gameObjects.level.densityZombieHeight))), Vector2i(64, 66), "BearZombieEnemy", gameObjects.level.bearZombieHealth, gameObjects.level.bearZombieSpeed));
 			}
 		}
 		
@@ -199,7 +203,7 @@ void entitiesInteraction(gameObjectStruct &gameObjects, Player &player, objectIm
 }
 
 void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, Player &player){
-	systemObjects.time = systemObjects.clock.getElapsedTime().asMicroseconds();
+	systemObjects.time = float(systemObjects.clock.getElapsedTime().asMicroseconds());
 	systemObjects.clock.restart();
 	systemObjects.time = systemObjects.time / gameObjects.level.tempGame;
 	
@@ -245,7 +249,9 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 
 bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, Player &player) {//функция начинает игру
 
-	//menu(window);//вызов меню
+	menu(systemObjects.window);//вызов меню
+
+	systemObjects.window.setMouseCursorVisible(false); // скрывает курсор
 
 	while (systemObjects.window.isOpen())
 	{
@@ -263,13 +269,9 @@ bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImag
 bool createGameObject(){
 
 	systemObjectStruct systemObjects;
-	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!", sf::Style::Fullscreen);
-	systemObjects.window.setMouseCursorVisible(false); // скрывает курсор
+	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!"/*, sf::Style::Fullscreen*/);
 	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
 	
-	
-	
-
 	objectImagesStruct objectImages;
 	objectImages.hideX = 0;
 	objectImages.hideY = 2200;
@@ -283,10 +285,10 @@ bool createGameObject(){
 	objectImages.textureBonus.loadFromFile("images/bonus.png");
 	objectImages.bonusTimeSprite.setTextureRect(IntRect(0, 0, 32,32));
 	objectImages.bonusTimeSprite.setTexture(objectImages.textureBonus);
-	objectImages.bonusTimeSprite.setPosition(objectImages.hideX, objectImages.hideY);
+	objectImages.bonusTimeSprite.setPosition(float(objectImages.hideX), float(objectImages.hideY));
 	objectImages.bonusHealthSprite.setTexture(objectImages.textureBonus);
 	objectImages.bonusHealthSprite.setTextureRect(IntRect(32, 0, 32, 32));
-	objectImages.bonusHealthSprite.setPosition(objectImages.hideX, objectImages.hideY);
+	objectImages.bonusHealthSprite.setPosition(float(objectImages.hideX), float(objectImages.hideY));
 	
 	objectImages.spriteCursor.setTexture(objectImages.textureCursor);
 	
@@ -295,9 +297,9 @@ bool createGameObject(){
 	systemObjects.bonusTimer = 0;
 	/////////////////////////////Создание зомби в зависимости от плотности////////////////////
 	for (int i = 0; i < gameObjects.level.zombieQuantity; i++) {//проходимся по элементам этого вектора(а именно по врагам)
-		gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObjects.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth), 50 + rand() % (gameObjects.level.densityZombieHeight)*i), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));//генерим врагов по высоте
+		gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(float(systemObjects.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth)), float(50 + rand() % (gameObjects.level.densityZombieHeight)*i)), Vector2i(25, 53), "ZombieEnemy", gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));//генерим врагов по высоте
 		for (int j = 0; j < gameObjects.level.zombieQuantity; j++) {
-			gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObjects.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth)*j, 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", 1 + rand() % gameObjects.level.getZombieHealth(), gameObjects.level.getZombieSpeed()));//по ширине
+			gameObjects.entities.push_back(new Enemy(objectImages.enemyImage, Vector2f(systemObjects.window.getSize().x + rand() % (gameObjects.level.densityZombieWidth)*j, 50 + rand() % (gameObjects.level.densityZombieHeight)), Vector2i(25, 53), "ZombieEnemy", 1 + rand() % gameObjects.level.getZombieHealth(), float(gameObjects.level.getZombieSpeed())));//по ширине
 		}
 	}
 	///////////////////////////////////////////////////////////////

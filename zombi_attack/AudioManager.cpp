@@ -31,6 +31,10 @@ AudioManager::AudioManager() {
 
 	gameTheme.openFromFile("sounds/FightMusic.wav"); //main music;
 
+	menuMusic.openFromFile("sounds/MenuMusic.wav"); //menu music
+
+
+
 }
 
 void AudioManager::zombieDiePlay(std::list<Entity*> &entities){

@@ -1,6 +1,6 @@
 #ifndef ENEMY_HPP
 #define ENEMY_HPP
-#include "Entity.h";
+#include "Entity.h"
 #include "map.h"
 #include "home.h"
 using namespace sf;
