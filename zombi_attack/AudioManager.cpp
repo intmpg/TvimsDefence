@@ -33,14 +33,12 @@ AudioManager::AudioManager() {
 
 	menuMusic.openFromFile("sounds/MenuMusic.wav"); //menu music
 
-
-
 }
 
 void AudioManager::zombieDiePlay(std::list<Entity*> &entities){
 	for (auto& it : entities) {
-		if ((it->name == "ZombieEnemy") && (it->health <= 0) && (!zombieDie.getStatus())){ zombieDie.play(); }
-		if ((it->name == "BearZombieEnemy") && (it->health <= 0) && (!zombieBearDie.getStatus())) { zombieBearDie.play(); }
+		if ((it->name == "ZombieEnemy") && (it->health <= 0) && (!zombieDie.getStatus() && (!it ->startShowDecomposition))){ zombieDie.play(); }
+		if ((it->name == "BearZombieEnemy") && (it->health <= 0) && (!zombieBearDie.getStatus() && (!it->startShowDecomposition))) { zombieBearDie.play(); }
 	}
 }
 void AudioManager::update(Player &player) {

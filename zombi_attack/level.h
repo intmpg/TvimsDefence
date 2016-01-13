@@ -12,6 +12,7 @@ public:
 	int densityZombieWidth;//плотность появление зомби по ширине при старте
 	int densityZombieHeight;//плотность появление по высоте
 	int wave;//номер волны
+	int waveHelpPlayer;//после какой волны все зомби умрут
 	int score;//кол-во очков
 	int attackDistance;//дистанция атаки
 	int zombieHealth;//здоровье зомби
@@ -22,9 +23,15 @@ public:
 	int superHardMode;//после какой волны пули будут сильнее
 	int deathQuantityHealth;//количество хп необходимое для смерти
 	bool showBonusText;//показывать или нет текст нового бонуса
+	bool isHelpedPlayer;//убились ли зомби
 	float zombieSpeed;//скорость зомби
 	float bearZombieSpeed;//скорость зомби
 	float showBonusTimer;//время показа текста о бонусах
+	Font font;//шрифт sfml
+	Text textStats;
+	Text textBonus;
+	std::ostringstream statsString;
+	std::ostringstream BonusString;
 	
 	String gameOverString = "Игра окончена. Нажмите ТАБ, чтобы начать заново. Ваш счет : \n";
 	Level();

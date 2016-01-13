@@ -12,7 +12,7 @@ Bullet::Bullet(Image &image, String Name, Vector2f startPosition, Vector2i sprit
 	distance = 0;
 }
 
-void Bullet::update(float time, Home &home){
+void Bullet::update(float time, Home &home) {
 	distance = sqrt((m_target.x - position.x)*(m_target.x - position.x) + (m_target.y - position.y)*(m_target.y - position.y));//считаем дистанцию (длину от точки А до точки Б). формула длины вектора
 
 	if (distance> 5) {//этим условием убираем дергание во время конечной позиции спрайта
