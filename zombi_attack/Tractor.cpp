@@ -23,7 +23,7 @@ Tractor::Tractor() {
 	isMove = false;
 	moveTimer = 0;
 	startTimer = 0;
-	speed = 0.1;
+	speed = 0.2;
 	startTime = 3000;//через какое время выедет трактор
 	moveTime = 30000;//время, которое трактор должен ездить прежде чем вернется на базу
 	state = right;

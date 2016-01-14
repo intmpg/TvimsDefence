@@ -1,22 +1,22 @@
 #include "level.h"
 
 Level::Level() {
-	zombieQuantity = 3;//плотность создания зомби
+	zombieQuantity = 2;//плотность создания зомби
 	densityZombieWidth = 1200;//плотность появления зомби по ширине
 	densityZombieHeight = 490;//по высоте
 	wave = 1;// номер волны
-	waveHelpPlayer = 20;//после какой волны зомби подохнут и игроку станет легче
+	waveHelpPlayer = 50;//после какой волны зомби подохнут и игроку станет легче
 	playerDamage = 1;
 	zombieDamage = 3;
-	tempGame = 800;
+	tempGame = 1000;
 	score = 0; //количество убитых зомби
 	attackDistance = 120;//дальность стрельбы игрока
 	superHardMode = 30;//после какой волны пули станут сильнее
 	deathQuantityHealth = 0;
-	zombieHealth = 1;
-	bearZombieHealth = 5;
-	zombieSpeed = -0.05f;
-	bearZombieSpeed = -0.02f;
+	zombieHealth = 2;
+	bearZombieHealth = 8;
+	zombieSpeed = -0.1f;
+	bearZombieSpeed = -0.1f;
 	showBonusTimer = 0;
 	showBonusText = false;
 	isHelpedPlayer = false;
@@ -93,8 +93,8 @@ void Level::showBonusT(RenderWindow &window, float &time, bool &isShow) {
 	}
 }
 void Level::startNextWave(RenderWindow &window, float &time) {//след волна
-	if (score > wave * 3) {
-		wave++; zombieSpeed -= 0.0005f; zombieHealth += 0.5f; bearZombieHealth += 0.8f; attackDistance += 0.9f; zombieQuantity += 0.01f;
+	if (score > wave * 2) {
+		wave++; zombieSpeed -= 0.004f; bearZombieSpeed = -0.008f; zombieHealth += 0.5; bearZombieHealth += 0.8f; attackDistance += 0.8f; zombieQuantity += 1;
 		showBonusText = true;
 	}
 	showBonusT(window, time, showBonusText);

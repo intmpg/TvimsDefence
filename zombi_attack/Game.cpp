@@ -24,6 +24,7 @@ void menu(RenderWindow & window){
 	//////////////////////////////МЕНЮ///////////////////
 	while (isMenu)
 	{
+
 		menu1.setColor(Color::White);
 		menu2.setColor(Color::White);
 		menu3.setColor(Color::White);
@@ -80,8 +81,8 @@ struct systemObjectStruct //Объявили новую структуру systemObjectStruct
 	Clock clock;
 	float time;
 	float bonusTimer;
-	int bonusClockTimer = 7000;//через сколько появятся бонус 
-	int timeForHide = 17000;//время через которое бонус будет исчезать после появления
+	int bonusClockTimer = 17000;//через сколько появятся бонус 
+	int timeForHide = 7000;//время через которое бонус будет исчезать после появления
 	Event event;
 	Vector2f pos;
 	AudioManager audioManager;
@@ -292,7 +293,7 @@ bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImag
 bool createGameObject(){
 
 	systemObjectStruct systemObjects;
-	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!", sf::Style::Fullscreen);
+	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!");
 	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
 	objectImagesStruct objectImages;
 	objectImages.hideY = 2200;

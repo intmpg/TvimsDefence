@@ -4,7 +4,7 @@ Home::Home(){
 	image.loadFromFile("images/home.png");
 	texture.loadFromImage(image);
 	sprite.setTexture(texture);
-	health = 20000;//здоровье базы
+	health = 15000;//здоровье базы
 	life = true;
 }
 FloatRect Home::getRect() {
