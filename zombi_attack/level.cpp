@@ -5,18 +5,18 @@ Level::Level() {
 	densityZombieWidth = 1200;//плотность появления зомби по ширине
 	densityZombieHeight = 490;//по высоте
 	wave = 1;// номер волны
-	waveHelpPlayer = 22;//после какой волны зомби подохнут и игроку станет легче
+	waveHelpPlayer = 20;//после какой волны зомби подохнут и игроку станет легче
 	playerDamage = 1;
 	zombieDamage = 3;
 	tempGame = 800;
 	score = 0; //количество убитых зомби
 	attackDistance = 70;//дальность стрельбы игрока
-	superHardMode = 1;//после какой волны пули станут сильнее
+	superHardMode = 30;//после какой волны пули станут сильнее
 	deathQuantityHealth = 0;
 	zombieHealth = 1;
 	bearZombieHealth = 5;
-	zombieSpeed = -0.04;
-	bearZombieSpeed = -0.03;
+	zombieSpeed = -0.05f;
+	bearZombieSpeed = -0.02f;
 	showBonusTimer = 0;
 	showBonusText = false;
 	isHelpedPlayer = false;
@@ -25,13 +25,14 @@ Level::Level() {
 	textStats.setFont(font);
 	textStats.setString("");
 	textStats.setCharacterSize(20);
-	textStats.setColor(Color::Red);//цвет текста
+	textStats.setColor(Color::Yellow);//цвет текста
 	textStats.setStyle(Text::Bold);//жирный текст
+
 
 	textBonus.setFont(font);
 	textBonus.setString("");
 	textBonus.setCharacterSize(26);
-	textBonus.setColor(Color::Yellow);//цвет текста
+	textBonus.setColor(Color::Black);//цвет текста
 	textBonus.setStyle(Text::Bold);//жирный текст
 
 	BonusString << "Дальность стрельбы увеличена!";
@@ -51,7 +52,7 @@ void Level::gameOver(RenderWindow  & window, Text &text) {
 	std::ostringstream statsString;
 	statsString << "Волна: " << wave << "\n" << "Убито зомби: " << score;//то выводим счет игрока на экран
 	text.setString(gameOverString + statsString.str());//закидываем тексту переменную счета
-	text.setPosition(window.getSize().x / 2 - 300, window.getSize().y / 2 - 200);//позиция этого текста
+	text.setPosition(float(window.getSize().x / 2 - 300), float(window.getSize().y / 2 - 200));//позиция этого текста
 	window.draw(text);
 }
 
@@ -60,7 +61,7 @@ void Level::drawStats(RenderWindow  & window, Player &player, Home &home) {
 	std::ostringstream statsString;
 	statsString << "Волна: " << wave << "\n" << "Убито зомби: " << score;//то выводим счет игрока на экран
 	textStats.setString(statsString.str());//закидываем тексту переменную счета
-	textStats.setPosition(window.getSize().x - 180, window.getSize().y - 50);//позиция этого текста
+	textStats.setPosition(float(window.getSize().x - 180), float(window.getSize().y - 50));//позиция этого текста
 
 	checkGameOver(window, textStats, player, home);//print game over
 
@@ -77,18 +78,14 @@ float Level::getZombieSpeed() {
 
 void Level::showBonusT(RenderWindow &window, float &time, bool &isShow) {
 	if (isShow) {
-		textBonus.setPosition(window.getSize().x / 2 - 150, window.getSize().y / 2 - 300);
+		textBonus.setPosition(float(window.getSize().x / 2 - 150), float(window.getSize().y / 2 - 300));
 		showBonusTimer += time;
 		//std::ostringstream statsString;
 		
-		if (wave == superHardMode) {
-			BonusString << "\n Ваши пули могут убивать больше врагов!";//
-		}
-
 		textBonus.setString(BonusString.str());//закидываем тексту переменную счета
 
 		if (showBonusTimer < 3000) {
-			textBonus.move(-0.09*time, 0);
+			textBonus.move(-0.09f * time, 0);
 			window.draw(textBonus);
 		} else { 
 			showBonusTimer = 0; isShow = false; 
@@ -97,7 +94,7 @@ void Level::showBonusT(RenderWindow &window, float &time, bool &isShow) {
 }
 void Level::startNextWave(RenderWindow &window, float &time) {//след волна
 	if (score > wave * 3) {
-		wave++; zombieSpeed -= 0.001; zombieHealth += 0.05; bearZombieHealth += 1; attackDistance += 3;
+		wave++; zombieSpeed -= 0.0005f; zombieHealth += 0.5f; bearZombieHealth += 0.8f; attackDistance += 0.9f; zombieQuantity += 0.01f;
 		showBonusText = true;
 	}
 	showBonusT(window, time, showBonusText);

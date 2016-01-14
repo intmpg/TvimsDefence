@@ -132,8 +132,8 @@ void createBonus(int &wave, systemObjectStruct &systemObjects, objectImagesStruc
 			objectImages.bonusTimeSprite.setPosition(float(rangeXLeft + rand() % rangeXRight), float(rangeYTop + rand() % rangeYBottom));
 		} else {
 			objectImages.bonusHealthSprite.setPosition(float(rangeXLeft + rand() % rangeXRight), float(rangeYTop + rand() % rangeYBottom));
-			if (0 + rand() % 10 == 5) {//шанс выпада бомбы
-				//objectImages.bonusBombSprite.setPosition(float(rangeXLeft + rand() % rangeXRight), float(rangeYTop + rand() % rangeYBottom));
+			if (0 + rand() % 10 == 7) {//шанс выпада бомбы
+				objectImages.bonusBombSprite.setPosition(float(rangeXLeft + rand() % rangeXRight), float(rangeYTop + rand() % rangeYBottom));
 			}
 		}
 		systemObjects.bonusTimer = 0;
@@ -272,9 +272,9 @@ void gameUpdate(systemObjectStruct &systemObjects, objectImagesStruct &objectIma
 
 bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImages, gameObjectStruct &gameObjects, Player &player) {//функция начинает игру
 
-	//menu(systemObjects.window);//вызов меню
+	menu(systemObjects.window);//вызов меню
 
-	systemObjects.window.setMouseCursorVisible(false); // скрывает курсор
+	systemObjects.window.setMouseCursorVisible(false); // скрывает курсорa
 
 	while (systemObjects.window.isOpen())
 	{
@@ -294,9 +294,7 @@ bool createGameObject(){
 	systemObjectStruct systemObjects;
 	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!"/*, sf::Style::Fullscreen*/);
 	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
-	
 	objectImagesStruct objectImages;
-	objectImages.hideX = 0;
 	objectImages.hideY = 2200;
 	objectImages.BulletImage.loadFromFile("images/bullet.png");//загрузили картинку в объект изображения
 	objectImages.BulletImage.createMaskFromColor(Color(0, 0, 0));//маска для пули по черному цвету

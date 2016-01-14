@@ -95,43 +95,43 @@ void Player::control(float &time) {
 
 
 		if ((Keyboard::isKeyPressed(Keyboard::Left) || (Keyboard::isKeyPressed(Keyboard::A)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = left;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Right) || (Keyboard::isKeyPressed(Keyboard::D)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = right;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Up) || (Keyboard::isKeyPressed(Keyboard::W)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = up;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::Down) || (Keyboard::isKeyPressed(Keyboard::S)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = down;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) && (Keyboard::isKeyPressed(Keyboard::A)) && (state != left))) {
 
-			speed = 0.15;
+			speed = 0.2;
 			state = left_up;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::W) && (Keyboard::isKeyPressed(Keyboard::D)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = right_up;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::A) && (Keyboard::isKeyPressed(Keyboard::S)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = left_down;
 		}
 
 		if ((Keyboard::isKeyPressed(Keyboard::D) && (Keyboard::isKeyPressed(Keyboard::S)))) {
-			speed = 0.15;
+			speed = 0.2;
 			state = right_down;
 		}
 	}

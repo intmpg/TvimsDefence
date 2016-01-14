@@ -20,11 +20,14 @@ void Enemy::startAnimation(float &time) {//анимация
 			if (isTractorKiller) {
 				sprite.setTextureRect(IntRect(88 * int(getCurrentFrame(time)), spriteSize.y, 88, 57));//анимация смерти первого зомби от трактора
 			} else {
-				sprite.setTextureRect(IntRect(61 * int(getCurrentFrame(time)), 135, 61, 93));//анимация смерти первого зомби от пули
+				sprite.setTextureRect(IntRect(92 * int(getCurrentFrame(time)), 135, 92, 67));//анимация смерти первого зомби от пули
 			}
 		}
 		if (name == "BearZombieEnemy") {//для персонажа с таким именем логика анимации смерти будет такой
-			sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y, spriteSize.x, spriteSize.y + 1));//анимация смерти
+			sprite.setTextureRect(IntRect(88 * int(getCurrentFrame(time)), spriteSize.y, 88, 66));//анимация смерти
+		}
+		else {
+			sprite.setTextureRect(IntRect(61 * int(getCurrentFrame(time)), 135, 61, 93)); // от пули
 		}
 		if (deathAnimationTimer > 800) {
 			deathAnimationTimer = 0;
@@ -36,14 +39,14 @@ void Enemy::startAnimation(float &time) {//анимация
 				if (isTractorKiller) {
 					sprite.setTextureRect(IntRect(88 * int(getCurrentFrameDeath(time)), spriteSize.y, 88, 57));//анимация разложения от трактора
 				} else {
-					sprite.setTextureRect(IntRect(61 * int(getCurrentFrameDeath(time)), 135, 61, 93));//анимация разложения от пули
+					sprite.setTextureRect(IntRect(93 * int(getCurrentFrameDeath(time)), 135, 93, 61));//анимация разложения от пули
 				}
 			}
 			if (name == "BearZombieEnemy") {//для персонажа с таким именем логика разложения будет такой
 				if (isTractorKiller) {
-					sprite.setTextureRect(IntRect(spriteSize.x * int(getCurrentFrame(time)), spriteSize.y * 2, spriteSize.x, spriteSize.y + 1));//анимация смерти
+					sprite.setTextureRect(IntRect(88 * int(getCurrentFrameDeath(time)), spriteSize.y, 88, 66));//анимация разложения от трактора
 				} else {
-					sprite.setTextureRect(IntRect(74 * int(getCurrentFrameDeath(time)), 135, 74, 68));//анимация разложения от пули
+					sprite.setTextureRect(IntRect(86 * int(getCurrentFrameDeath(time)), 140, 86, 78));//анимация разложения от пули
 				}
 			}
 		}

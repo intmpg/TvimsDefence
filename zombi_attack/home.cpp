@@ -4,11 +4,11 @@ Home::Home(){
 	image.loadFromFile("images/home.png");
 	texture.loadFromImage(image);
 	sprite.setTexture(texture);
-	health = 15000;//здоровье базы
+	health = 20000;//здоровье базы
 	life = true;
 }
 FloatRect Home::getRect() {
-	return FloatRect(sprite.getPosition().x, sprite.getPosition().y, sprite.getTextureRect().width, sprite.getTextureRect().height);
+	return FloatRect(float(sprite.getPosition().x), sprite.getPosition().y, sprite.getTextureRect().width, sprite.getTextureRect().height);
 }
 
 Sprite Home::getSprite() {
