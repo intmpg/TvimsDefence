@@ -292,7 +292,7 @@ bool startGame(systemObjectStruct &systemObjects, objectImagesStruct &objectImag
 bool createGameObject(){
 
 	systemObjectStruct systemObjects;
-	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!"/*, sf::Style::Fullscreen*/);
+	systemObjects.window.create(sf::VideoMode(1366, 768), "Ataka zombi!", sf::Style::Fullscreen);
 	systemObjects.view = systemObjects.window.getView(); //фиксированная камера для прицела
 	objectImagesStruct objectImages;
 	objectImages.hideY = 2200;
